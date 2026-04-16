@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { SplashScreen } from './components/SplashScreen';
 import TSDApp from './components/TSDApp';
 import VisitorHomePage from './components/VisitorHomePage';
@@ -47,14 +48,22 @@ function App() {
   }, [darkMode, language, appMode]);
 
   if (showSplash) {
-    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+    return (
+      <>
+        <SplashScreen onComplete={() => setShowSplash(false)} />
+        <SpeedInsights />
+      </>
+    );
   }
 
   if (appMode === 'client') {
     return (
-      <AuthProvider>
-        <TSDApp onBackToVisitor={() => setAppMode('visitor')} isPasswordRecovery={isPasswordRecovery} />
-      </AuthProvider>
+      <>
+        <AuthProvider>
+          <TSDApp onBackToVisitor={() => setAppMode('visitor')} isPasswordRecovery={isPasswordRecovery} />
+        </AuthProvider>
+        <SpeedInsights />
+      </>
     );
   }
 
@@ -125,7 +134,12 @@ function App() {
     }
   };
 
-  return <>{renderVisitorScreen()}</>;
+  return (
+    <>
+      {renderVisitorScreen()}
+      <SpeedInsights />
+    </>
+  );
 }
 
 export default App;
