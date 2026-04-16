@@ -21,7 +21,7 @@ Application professionnelle de gestion pour entreprise de plomberie avec gestion
 - ✅ Planning hebdomadaire
 - ✅ Statistiques et rapports
 - ✅ Gestion des clients
-- ✅ Projets et portfolio
+- ✅ Projets et portfolio 
 
 ### Pour les Administrateurs
 - ✅ Gestion des utilisateurs
