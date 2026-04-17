@@ -12,6 +12,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     autoRefreshToken: true,
     storageKey: 'tsd-auth-token',
-    storage: window.localStorage,
+    storage: typeof window !== "undefined" ? window.localStorage : undefined,
   },
 });
