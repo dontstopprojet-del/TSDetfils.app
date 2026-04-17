@@ -219,7 +219,7 @@ const CreateAccountForm = ({ onClose, onSuccess, darkMode, colors, lang }: Creat
         email: formData.email,
         password: formData.password,
         options: {
-          emailRedirectTo: 'https://tsdetfils.com',
+          emailRedirectTo: `${window.location.origin}`,
           data: {
             name: formData.name,
             role: formData.role,

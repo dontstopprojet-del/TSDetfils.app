@@ -173,7 +173,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
           email,
           password,
           options: {
-            emailRedirectTo: 'https://tsdetfils.com'
+            emailRedirectTo: `${window.location.origin}`
           }
         });
 
@@ -270,7 +270,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail, {
-        redirectTo: 'https://tsdetfils.com',
+        redirectTo: `${window.location.origin}`,
       });
 
       if (error) throw error;
