@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 
 interface CreateAccountFormProps {
@@ -8,6 +8,35 @@ interface CreateAccountFormProps {
   colors: any;
   lang: string;
 }
+
+const getInitials = (name: string) => {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[parts.length - 1].charAt(0) + parts[0].charAt(0)).toUpperCase();
+  }
+  return parts[0]?.substring(0, 2).toUpperCase() || 'XX';
+};
+
+const generateBureauContract = (name: string) => {
+  const initials = getInitials(name);
+  const digits = Array.from({ length: 7 }, () => Math.floor(Math.random() * 10)).join('');
+  return `TSD-01${digits}0${initials}`;
+};
+
+const generateTechContract = (name: string) => {
+  const initials = getInitials(name);
+  const digits = Array.from({ length: 7 }, () => Math.floor(Math.random() * 10)).join('');
+  return `TSD-00${digits}9TS${initials}`;
+};
+
+const generateClientContract = (city: string) => {
+  const cityInitials = city.trim().substring(0, 2).toUpperCase() || 'XX';
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2, '0');
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const yyyy = now.getFullYear();
+  return `CTSD-${cityInitials}/${dd}/${mm}/${yyyy}MR6`;
+};
 
 const officeAccessMap: Record<string, { fr: string; en: string }> = {
   'Directeur': { fr: 'Supervise toute l\'entreprise', en: 'Oversees the entire company' },
@@ -36,6 +65,17 @@ const CreateAccountForm = ({ onClose, onSuccess, darkMode, colors, lang }: Creat
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
+  useEffect(() => {
+    if (!formData.contract_number || formData.contract_number.trim() === '') {
+      if (formData.role === 'office_employee' && formData.name.trim().length >= 2) {
+        setFormData(prev => ({ ...prev, contract_number: generateBureauContract(prev.name) }));
+      } else if (formData.role === 'tech' && formData.name.trim().length >= 2) {
+        setFormData(prev => ({ ...prev, contract_number: generateTechContract(prev.name) }));
+      } else if (formData.role === 'client' && formData.city.trim().length >= 2) {
+        setFormData(prev => ({ ...prev, contract_number: generateClientContract(prev.city) }));
+      }
+    }
+  }, [formData.name, formData.role, formData.city, formData.contract_number]);
 
   const t = lang === 'fr' ? {
     title: 'Créer un Compte',
@@ -46,7 +86,7 @@ const CreateAccountForm = ({ onClose, onSuccess, darkMode, colors, lang }: Creat
     role: 'Rôle',
     client: 'Client',
     tech: 'Technicien',
-    office: 'Membre de bureau',
+    office: 'Employé de Bureau',
     admin: 'Administrateur',
     contractNumber: 'Numéro de contrat',
     echelon: 'Échelon',
@@ -91,7 +131,7 @@ const CreateAccountForm = ({ onClose, onSuccess, darkMode, colors, lang }: Creat
     role: 'Role',
     client: 'Client',
     tech: 'Technician',
-    office: 'Office Member',
+    office: 'Office Employee',
     admin: 'Administrator',
     contractNumber: 'Contract number',
     echelon: 'Rank',
@@ -166,7 +206,7 @@ const CreateAccountForm = ({ onClose, onSuccess, darkMode, colors, lang }: Creat
       return;
     }
 
-    if (formData.role === 'office' && !formData.office_position) {
+    if (formData.role === 'office_employee' && !formData.office_position) {
       setMessage(lang === 'fr' ? 'Le poste est obligatoire pour les employés de bureau' : 'Position is required for office employees');
       return;
     }
@@ -357,7 +397,7 @@ const CreateAccountForm = ({ onClose, onSuccess, darkMode, colors, lang }: Creat
                 >
                 <option value="client">{t.client}</option>
                 <option value="tech">{t.tech}</option>
-                <option value="office">{t.office}</option>
+                <option value="office_employee">{t.office}</option>
                 <option value="admin">{t.admin}</option>
               </select>
             </div>
@@ -372,7 +412,7 @@ const CreateAccountForm = ({ onClose, onSuccess, darkMode, colors, lang }: Creat
                   value={formData.contract_number}
                   onChange={(e) => setFormData(prev => ({ ...prev, contract_number: e.target.value }))}
                   style={inputStyle}
-                  placeholder="TSD-DAT-04-2026-MER6"
+                  placeholder="TSD-00XXXXXXX9TS.."
                 />
               </div>
               <div>
@@ -397,7 +437,7 @@ const CreateAccountForm = ({ onClose, onSuccess, darkMode, colors, lang }: Creat
             </div>
           )}
 
-          {formData.role === 'office' && (
+          {formData.role === 'office_employee' && (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
               <div>
                 <label style={labelStyle}>{t.contractNumber}</label>
@@ -406,7 +446,7 @@ const CreateAccountForm = ({ onClose, onSuccess, darkMode, colors, lang }: Creat
                   value={formData.contract_number}
                   onChange={(e) => setFormData(prev => ({ ...prev, contract_number: e.target.value }))}
                   style={inputStyle}
-                  placeholder="BTSD-20/CAB/202603.MRR"
+                  placeholder="TSD-01XXXXXXX0.."
                 />
               </div>
               <div>
@@ -431,7 +471,7 @@ const CreateAccountForm = ({ onClose, onSuccess, darkMode, colors, lang }: Creat
             </div>
           )}
 
-          {formData.role === 'office' && (
+          {formData.role === 'office_employee' && (
             <div style={{ marginBottom: '15px' }}>
               <label style={labelStyle}>{lang === 'fr' ? 'Acces' : 'Access'}</label>
               <div style={{
@@ -468,7 +508,7 @@ const CreateAccountForm = ({ onClose, onSuccess, darkMode, colors, lang }: Creat
                   value={formData.contract_number}
                   onChange={(e) => setFormData(prev => ({ ...prev, contract_number: e.target.value }))}
                   style={inputStyle}
-                  placeholder="CTSD-AM/12/04/2026/MR6"
+                  placeholder="CTSD-XX/00/00/0000MR6"
                 />
               </div>
             </div>
