@@ -137,15 +137,15 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
           throw new Error(getText('Veuillez entrer votre numéro de téléphone', 'Please enter your phone number', 'الرجاء إدخال رقم هاتفك'));
         }
 
-        if (!phone.startsWith('+')) {
-          throw new Error(getText('Le numéro doit commencer par un indicatif (ex: +224, +32)', 'Phone number must start with a country code (e.g. +224, +32)', 'يجب أن يبدأ الرقم برمز البلد (مثال: 224+، 32+)'));
+        if (!phone.startsWith('+224')) {
+          throw new Error(getText('Le numéro doit commencer par +224', 'Phone number must start with +224', 'يجب أن يبدأ الرقم بـ 224+'));
         }
 
         if (!dateOfBirth) {
           throw new Error(getText('Veuillez entrer votre date de naissance', 'Please enter your date of birth', 'الرجاء إدخال تاريخ ميلادك'));
         }
 
-        if (!contractSignatureDate && role !== 'admin') {
+        if (!contractSignatureDate) {
           throw new Error(getText('Veuillez entrer la date de signature du contrat', 'Please enter the contract signature date', 'الرجاء إدخال تاريخ توقيع العقد'));
         }
 
@@ -153,32 +153,12 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
           throw new Error(getText('La ville de résidence est obligatoire pour les clients', 'City of residence is required for clients', 'مدينة الإقامة مطلوبة للعملاء'));
         }
 
-        if (!contractNumber.trim()) {
+        if (!contractNumber.trim() && (role === 'client' || role === 'tech' || role === 'office')) {
           throw new Error(getText('Le numéro de contrat est obligatoire', 'Contract number is required', 'رقم العقد مطلوب'));
         }
 
         if (role === 'admin' && !email.endsWith('@tsdetfils.com')) {
           throw new Error(getText('Les administrateurs doivent utiliser un email @tsdetfils.com', 'Administrators must use a @tsdetfils.com email', 'يجب على المسؤولين استخدام بريد إلكتروني @tsdetfils.com'));
-        }
-
-        if (role === 'admin' && !createdDate) {
-          throw new Error(getText('La date de création est obligatoire', 'Creation date is required', 'تاريخ الإنشاء مطلوب'));
-        }
-
-        if (role === 'admin' && !mad.trim()) {
-          throw new Error(getText('Le champ MAD est obligatoire', 'MAD field is required', 'حقل MAD مطلوب'));
-        }
-
-        if (role === 'admin' && !creationLocation.trim()) {
-          throw new Error(getText('Le lieu de création est obligatoire', 'Creation location is required', 'مكان الإنشاء مطلوب'));
-        }
-
-        if (role === 'admin' && !district.trim()) {
-          throw new Error(getText('Le quartier est obligatoire', 'District is required', 'الحي مطلوب'));
-        }
-
-        if (role === 'admin' && !postalCode.trim()) {
-          throw new Error(getText('Le code postal est obligatoire', 'Postal code is required', 'الرمز البريدي مطلوب'));
         }
 
         if (role === 'tech' && !echelon) {
@@ -820,7 +800,13 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
               <input
                 type="tel"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => {
+                  let value = e.target.value;
+                  if (!value.startsWith('+224')) {
+                    value = '+224' + value.replace(/^\+?224?/, '');
+                  }
+                  setPhone(value);
+                }}
                 placeholder="+224 XXX XXX XXX"
                 style={{
                   width: '100%',
@@ -833,8 +819,14 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   outline: 'none',
                   transition: 'border-color 0.3s'
                 }}
-                onFocus={(e) => e.currentTarget.style.borderColor = '#00D4FF'}
-                onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0'}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#00D4FF';
+                  if (!phone) setPhone('+224');
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0';
+                  if (phone === '+224') setPhone('');
+                }}
               />
             </div>
           )}
@@ -1076,7 +1068,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   {getText('Technicien', 'Technician', 'فني')}
                 </option>
                 <option value="office" style={{ background: darkMode ? '#2C3E50' : '#FFF' }}>
-                  {getText('Membre de bureau', 'Office Member', 'عضو مكتب')}
+                  {getText('Employé de Bureau', 'Office Employee', 'موظف مكتب')}
                 </option>
                 <option value="admin" style={{ background: darkMode ? '#2C3E50' : '#FFF' }}>
                   {getText('Administrateur', 'Administrator', 'مسؤول')}
@@ -1087,7 +1079,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
 
           {isSignUp && (
             <>
-              <div style={{ display: 'grid', gridTemplateColumns: role === 'admin' ? '1fr' : '1fr 1fr', gap: '18px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '18px' }}>
                 <div>
                   <label style={{
                     display: 'block',
@@ -1102,7 +1094,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                     type="date"
                     value={dateOfBirth}
                     onChange={(e) => setDateOfBirth(e.target.value)}
-                    style={{
+                        style={{
                       width: '100%',
                       padding: '14px',
                       borderRadius: '12px',
@@ -1118,37 +1110,35 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   />
                 </div>
 
-                {role !== 'admin' && (
-                  <div>
-                    <label style={{
-                      display: 'block',
-                      marginBottom: '8px',
+                <div>
+                  <label style={{
+                    display: 'block',
+                    marginBottom: '8px',
+                    color: darkMode ? '#FFF' : '#2C3E50',
+                    fontSize: '14px',
+                    fontWeight: '600'
+                  }}>
+                    {getText('Date de signature du contrat *', 'Contract signature date *', 'تاريخ توقيع العقد *')}
+                  </label>
+                  <input
+                    type="date"
+                    value={contractSignatureDate}
+                    onChange={(e) => setContractSignatureDate(e.target.value)}
+                        style={{
+                      width: '100%',
+                      padding: '14px',
+                      borderRadius: '12px',
+                      border: darkMode ? '2px solid rgba(255,255,255,0.2)' : '2px solid #E0E0E0',
+                      background: darkMode ? 'rgba(255,255,255,0.1)' : '#FFF',
                       color: darkMode ? '#FFF' : '#2C3E50',
-                      fontSize: '14px',
-                      fontWeight: '600'
-                    }}>
-                      {getText('Date de signature du contrat *', 'Contract signature date *', 'تاريخ توقيع العقد *')}
-                    </label>
-                    <input
-                      type="date"
-                      value={contractSignatureDate}
-                      onChange={(e) => setContractSignatureDate(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '14px',
-                        borderRadius: '12px',
-                        border: darkMode ? '2px solid rgba(255,255,255,0.2)' : '2px solid #E0E0E0',
-                        background: darkMode ? 'rgba(255,255,255,0.1)' : '#FFF',
-                        color: darkMode ? '#FFF' : '#2C3E50',
-                        fontSize: '15px',
-                        outline: 'none',
-                        transition: 'border-color 0.3s'
-                      }}
-                      onFocus={(e) => e.currentTarget.style.borderColor = '#00D4FF'}
-                      onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0'}
-                    />
-                  </div>
-                )}
+                      fontSize: '15px',
+                      outline: 'none',
+                      transition: 'border-color 0.3s'
+                    }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = '#00D4FF'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0'}
+                  />
+                </div>
               </div>
 
               <div>
@@ -1240,8 +1230,8 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
               <input
                 type="text"
                 value={contractNumber}
-                onChange={(e) => setContractNumber(e.target.value.toUpperCase())}
-                placeholder="CTSD-AM/12/04/2026/MR6"
+                onChange={(e) => setContractNumber(e.target.value)}
+                placeholder="CTSD-XX/00/00/0000MR6"
                 style={{
                   width: '100%',
                   padding: '14px',
@@ -1256,17 +1246,10 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                 onFocus={(e) => e.currentTarget.style.borderColor = '#00D4FF'}
                 onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0'}
               />
-              <p style={{ margin: '6px 0 0', fontSize: '12px', color: darkMode ? 'rgba(255,255,255,0.5)' : '#999' }}>
-                {getText(
-                  'Format: CTSD-[initiale prenom]/[jour naissance]/[mois signature]/[annee signature]/MR6',
-                  'Format: CTSD-[first initial]/[birth day]/[sign month]/[sign year]/MR6',
-                  'CTSD-[الحرف الأول]/[يوم الميلاد]/[شهر التوقيع]/[سنة التوقيع]/MR6 :التنسيق'
-                )}
-              </p>
             </div>
           )}
 
-          {isSignUp && role === 'tech' && (
+          {isSignUp && (role === 'tech' || role === 'office') && (
             <div>
               <label style={{
                 display: 'block',
@@ -1280,8 +1263,8 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
               <input
                 type="text"
                 value={contractNumber}
-                onChange={(e) => setContractNumber(e.target.value.toUpperCase())}
-                placeholder="TSD-DAT-04-2026-MER6"
+                onChange={(e) => setContractNumber(e.target.value)}
+                placeholder={role === 'tech' ? 'TSD-00XXXXXXX9TS..' : 'TSD-01XXXXXXX0..'}
                 style={{
                   width: '100%',
                   padding: '14px',
@@ -1296,13 +1279,6 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                 onFocus={(e) => e.currentTarget.style.borderColor = '#00D4FF'}
                 onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0'}
               />
-              <p style={{ margin: '6px 0 0', fontSize: '12px', color: darkMode ? 'rgba(255,255,255,0.5)' : '#999' }}>
-                {getText(
-                  'Format: TSD-[initiales nom prenom]-[mois naissance]-[annee signature]-MER6',
-                  'Format: TSD-[name initials]-[birth month]-[sign year]-MER6',
-                  'TSD-[الأحرف الأولى]-[شهر الميلاد]-[سنة التوقيع]-MER6 :التنسيق'
-                )}
-              </p>
             </div>
           )}
 
@@ -1363,46 +1339,6 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   {getText('Contremaître', 'Foreman', 'رئيس العمال')}
                 </option>
               </select>
-            </div>
-          )}
-
-          {isSignUp && role === 'office' && (
-            <div>
-              <label style={{
-                display: 'block',
-                marginBottom: '8px',
-                color: darkMode ? '#FFF' : '#2C3E50',
-                fontSize: '14px',
-                fontWeight: '600'
-              }}>
-                {getText('Numéro de contrat *', 'Contract Number *', 'رقم العقد *')}
-              </label>
-              <input
-                type="text"
-                value={contractNumber}
-                onChange={(e) => setContractNumber(e.target.value.toUpperCase())}
-                placeholder="BTSD-20/CAB/202603.MRR"
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  borderRadius: '12px',
-                  border: darkMode ? '2px solid rgba(255,255,255,0.2)' : '2px solid #E0E0E0',
-                  background: darkMode ? 'rgba(255,255,255,0.1)' : '#FFF',
-                  color: darkMode ? '#FFF' : '#2C3E50',
-                  fontSize: '15px',
-                  outline: 'none',
-                  transition: 'border-color 0.3s'
-                }}
-                onFocus={(e) => e.currentTarget.style.borderColor = '#00D4FF'}
-                onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0'}
-              />
-              <p style={{ margin: '6px 0 0', fontSize: '12px', color: darkMode ? 'rgba(255,255,255,0.5)' : '#999' }}>
-                {getText(
-                  'Format: BTSD-[jour naissance]/[initiales nom prenom]/[annee+mois signature].MRR',
-                  'Format: BTSD-[birth day]/[name initials]/[year+month sign].MRR',
-                  'BTSD-[يوم الميلاد]/[الأحرف الأولى]/[سنة+شهر التوقيع].MRR :التنسيق'
-                )}
-              </p>
             </div>
           )}
 
@@ -1495,13 +1431,13 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   fontSize: '14px',
                   fontWeight: '600'
                 }}>
-                  {getText('Date de création *', 'Creation date *', 'تاريخ الإنشاء *')}
+                  {t.createdDate}
                 </label>
                 <input
-                  type="date"
+                  type="text"
                   value={createdDate}
                   onChange={(e) => setCreatedDate(e.target.value)}
-                  style={{
+                    style={{
                     width: '100%',
                     padding: '14px',
                     borderRadius: '12px',
@@ -1509,11 +1445,8 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                     background: darkMode ? 'rgba(255,255,255,0.1)' : '#FFF',
                     color: darkMode ? '#FFF' : '#2C3E50',
                     fontSize: '15px',
-                    outline: 'none',
-                    transition: 'border-color 0.3s'
+                    outline: 'none'
                   }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = '#00D4FF'}
-                  onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0'}
                 />
               </div>
 
@@ -1525,14 +1458,13 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   fontSize: '14px',
                   fontWeight: '600'
                 }}>
-                  {getText('MAD *', 'MAD *', 'MAD *')}
+                  {t.mad}
                 </label>
                 <input
                   type="text"
                   value={mad}
                   onChange={(e) => setMad(e.target.value)}
-                  placeholder={getText('Ex: Salimatou', 'Ex: Salimatou', 'مثال: سليماتو')}
-                  style={{
+                    style={{
                     width: '100%',
                     padding: '14px',
                     borderRadius: '12px',
@@ -1540,11 +1472,8 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                     background: darkMode ? 'rgba(255,255,255,0.1)' : '#FFF',
                     color: darkMode ? '#FFF' : '#2C3E50',
                     fontSize: '15px',
-                    outline: 'none',
-                    transition: 'border-color 0.3s'
+                    outline: 'none'
                   }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = '#00D4FF'}
-                  onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0'}
                 />
               </div>
 
@@ -1556,14 +1485,13 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   fontSize: '14px',
                   fontWeight: '600'
                 }}>
-                  {getText('Lieu de création *', 'Creation location *', 'مكان الإنشاء *')}
+                  {t.creationLocation}
                 </label>
                 <input
                   type="text"
                   value={creationLocation}
                   onChange={(e) => setCreationLocation(e.target.value)}
-                  placeholder={getText('Ex: Belgique', 'Ex: Belgium', 'مثال: بلجيكا')}
-                  style={{
+                    style={{
                     width: '100%',
                     padding: '14px',
                     borderRadius: '12px',
@@ -1571,11 +1499,8 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                     background: darkMode ? 'rgba(255,255,255,0.1)' : '#FFF',
                     color: darkMode ? '#FFF' : '#2C3E50',
                     fontSize: '15px',
-                    outline: 'none',
-                    transition: 'border-color 0.3s'
+                    outline: 'none'
                   }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = '#00D4FF'}
-                  onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0'}
                 />
               </div>
 
@@ -1587,14 +1512,13 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   fontSize: '14px',
                   fontWeight: '600'
                 }}>
-                  {getText('Quartier *', 'District *', 'الحي *')}
+                  {t.district}
                 </label>
                 <input
                   type="text"
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
-                  placeholder={getText('Ex: Trooz', 'Ex: Trooz', 'مثال: ترووز')}
-                  style={{
+                    style={{
                     width: '100%',
                     padding: '14px',
                     borderRadius: '12px',
@@ -1602,11 +1526,8 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                     background: darkMode ? 'rgba(255,255,255,0.1)' : '#FFF',
                     color: darkMode ? '#FFF' : '#2C3E50',
                     fontSize: '15px',
-                    outline: 'none',
-                    transition: 'border-color 0.3s'
+                    outline: 'none'
                   }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = '#00D4FF'}
-                  onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0'}
                 />
               </div>
 
@@ -1618,14 +1539,13 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   fontSize: '14px',
                   fontWeight: '600'
                 }}>
-                  {getText('Code postal *', 'Postal code *', 'الرمز البريدي *')}
+                  {t.postalCode}
                 </label>
                 <input
                   type="text"
                   value={postalCode}
                   onChange={(e) => setPostalCode(e.target.value)}
-                  placeholder={getText('Ex: 4870', 'Ex: 4870', 'مثال: 4870')}
-                  style={{
+                    style={{
                     width: '100%',
                     padding: '14px',
                     borderRadius: '12px',
@@ -1633,11 +1553,8 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                     background: darkMode ? 'rgba(255,255,255,0.1)' : '#FFF',
                     color: darkMode ? '#FFF' : '#2C3E50',
                     fontSize: '15px',
-                    outline: 'none',
-                    transition: 'border-color 0.3s'
+                    outline: 'none'
                   }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = '#00D4FF'}
-                  onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0'}
                 />
               </div>
             </>
