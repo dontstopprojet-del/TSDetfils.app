@@ -1403,7 +1403,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   type="text"
                   value={mad}
                   onChange={(e) => setMad(e.target.value)}
-                  placeholder={getText('Ex: Salimatou', 'Ex: Salimatou', 'مثال: سليماتو')}
+                  placeholder=""
                   style={{
                     width: '100%',
                     padding: '14px',
@@ -1434,7 +1434,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   type="text"
                   value={creationLocation}
                   onChange={(e) => setCreationLocation(e.target.value)}
-                  placeholder={getText('Ex: Belgique', 'Ex: Belgium', 'مثال: بلجيكا')}
+                  placeholder=""
                   style={{
                     width: '100%',
                     padding: '14px',
@@ -1465,7 +1465,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   type="text"
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
-                  placeholder={getText('Ex: Trooz', 'Ex: Trooz', 'مثال: ترووز')}
+                  placeholder=""
                   style={{
                     width: '100%',
                     padding: '14px',
@@ -1496,7 +1496,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   type="text"
                   value={postalCode}
                   onChange={(e) => setPostalCode(e.target.value)}
-                  placeholder={getText('Ex: 4870', 'Ex: 4870', 'مثال: 4870')}
+                  placeholder=""
                   style={{
                     width: '100%',
                     padding: '14px',
