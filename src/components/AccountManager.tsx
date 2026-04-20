@@ -145,15 +145,17 @@ const AccountManager = ({ lang, darkMode, onClose }: AccountManagerProps) => {
         role: editForm.role
       };
 
+      if (editForm.contract_number) {
+        updateData.contract_number = editForm.contract_number;
+      }
+
       if (editForm.role === 'tech' && editForm.echelon) {
         updateData.echelon = editForm.echelon;
-        updateData.contract_number = editForm.contract_number;
       }
 
       if (editForm.role === 'office') {
         updateData.status = editForm.status;
         updateData.office_position = editForm.office_position;
-        updateData.contract_number = editForm.contract_number;
       }
 
       const { error } = await supabase
@@ -450,7 +452,7 @@ const AccountManager = ({ lang, darkMode, onClose }: AccountManagerProps) => {
                       type="text"
                       value={editForm.contract_number}
                       onChange={(e) => setEditForm({ ...editForm, contract_number: e.target.value })}
-                      placeholder="TSD-12345678"
+                      placeholder="TSD-DAT-04-2026-MER6"
                       style={{
                         width: '100%',
                         padding: '12px',
@@ -520,7 +522,7 @@ const AccountManager = ({ lang, darkMode, onClose }: AccountManagerProps) => {
                       type="text"
                       value={editForm.contract_number}
                       onChange={(e) => setEditForm({ ...editForm, contract_number: e.target.value })}
-                      placeholder="TSD-12345678"
+                      placeholder="BTSD-20/CAB/202603.MRR"
                       style={{
                         width: '100%',
                         padding: '12px',
@@ -608,6 +610,36 @@ const AccountManager = ({ lang, darkMode, onClose }: AccountManagerProps) => {
                     </select>
                   </div>
                 </>
+              )}
+
+              {editForm.role === 'client' && (
+                <div style={{ marginBottom: '15px' }}>
+                  <label style={{
+                    display: 'block',
+                    marginBottom: '8px',
+                    color: darkMode ? '#FFF' : '#2C3E50',
+                    fontSize: '14px',
+                    fontWeight: '600'
+                  }}>
+                    {t.contract}
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.contract_number}
+                    onChange={(e) => setEditForm({ ...editForm, contract_number: e.target.value })}
+                    placeholder="CTSD-AM/12/04/2026/MR6"
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: `1px solid ${darkMode ? '#333' : '#E0E0E0'}`,
+                      background: darkMode ? '#2a2a3e' : '#FFF',
+                      color: darkMode ? '#FFF' : '#2C3E50',
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
               )}
             </div>
 

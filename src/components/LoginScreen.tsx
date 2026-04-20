@@ -29,7 +29,6 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState('client');
-  const [contractNumber, setContractNumber] = useState('');
   const [echelon, setEchelon] = useState('');
   const [status, setStatus] = useState('');
   const [officePosition, setOfficePosition] = useState('');
@@ -153,10 +152,6 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
           throw new Error(getText('La ville de résidence est obligatoire pour les clients', 'City of residence is required for clients', 'مدينة الإقامة مطلوبة للعملاء'));
         }
 
-        if (!contractNumber.trim()) {
-          throw new Error(getText('Le numéro de contrat est obligatoire', 'Contract number is required', 'رقم العقد مطلوب'));
-        }
-
         if (role === 'admin' && !email.endsWith('@tsdetfils.com')) {
           throw new Error(getText('Les administrateurs doivent utiliser un email @tsdetfils.com', 'Administrators must use a @tsdetfils.com email', 'يجب على المسؤولين استخدام بريد إلكتروني @tsdetfils.com'));
         }
@@ -213,16 +208,13 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
 
           if (role === 'client') {
             profileParams.p_city = city || null;
-            profileParams.p_contract_number = contractNumber || null;
           }
 
           if (role === 'tech') {
-            profileParams.p_contract_number = contractNumber || null;
             profileParams.p_echelon = echelon || null;
           }
 
           if (role === 'office') {
-            profileParams.p_contract_number = contractNumber || null;
             profileParams.p_office_position = officePosition || null;
             profileParams.p_status = status || null;
           }
@@ -1226,86 +1218,6 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
             </div>
           )}
 
-          {isSignUp && role === 'client' && (
-            <div>
-              <label style={{
-                display: 'block',
-                marginBottom: '8px',
-                color: darkMode ? '#FFF' : '#2C3E50',
-                fontSize: '14px',
-                fontWeight: '600'
-              }}>
-                {getText('Numéro de contrat *', 'Contract Number *', 'رقم العقد *')}
-              </label>
-              <input
-                type="text"
-                value={contractNumber}
-                onChange={(e) => setContractNumber(e.target.value.toUpperCase())}
-                placeholder="CTSD-AM/12/04/2026/MR6"
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  borderRadius: '12px',
-                  border: darkMode ? '2px solid rgba(255,255,255,0.2)' : '2px solid #E0E0E0',
-                  background: darkMode ? 'rgba(255,255,255,0.1)' : '#FFF',
-                  color: darkMode ? '#FFF' : '#2C3E50',
-                  fontSize: '15px',
-                  outline: 'none',
-                  transition: 'border-color 0.3s'
-                }}
-                onFocus={(e) => e.currentTarget.style.borderColor = '#00D4FF'}
-                onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0'}
-              />
-              <p style={{ margin: '6px 0 0', fontSize: '12px', color: darkMode ? 'rgba(255,255,255,0.5)' : '#999' }}>
-                {getText(
-                  'Format: CTSD-[initiale prenom]/[jour naissance]/[mois signature]/[annee signature]/MR6',
-                  'Format: CTSD-[first initial]/[birth day]/[sign month]/[sign year]/MR6',
-                  'CTSD-[الحرف الأول]/[يوم الميلاد]/[شهر التوقيع]/[سنة التوقيع]/MR6 :التنسيق'
-                )}
-              </p>
-            </div>
-          )}
-
-          {isSignUp && role === 'tech' && (
-            <div>
-              <label style={{
-                display: 'block',
-                marginBottom: '8px',
-                color: darkMode ? '#FFF' : '#2C3E50',
-                fontSize: '14px',
-                fontWeight: '600'
-              }}>
-                {getText('Numéro de contrat *', 'Contract Number *', 'رقم العقد *')}
-              </label>
-              <input
-                type="text"
-                value={contractNumber}
-                onChange={(e) => setContractNumber(e.target.value.toUpperCase())}
-                placeholder="TSD-DAT-04-2026-MER6"
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  borderRadius: '12px',
-                  border: darkMode ? '2px solid rgba(255,255,255,0.2)' : '2px solid #E0E0E0',
-                  background: darkMode ? 'rgba(255,255,255,0.1)' : '#FFF',
-                  color: darkMode ? '#FFF' : '#2C3E50',
-                  fontSize: '15px',
-                  outline: 'none',
-                  transition: 'border-color 0.3s'
-                }}
-                onFocus={(e) => e.currentTarget.style.borderColor = '#00D4FF'}
-                onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0'}
-              />
-              <p style={{ margin: '6px 0 0', fontSize: '12px', color: darkMode ? 'rgba(255,255,255,0.5)' : '#999' }}>
-                {getText(
-                  'Format: TSD-[initiales nom prenom]-[mois naissance]-[annee signature]-MER6',
-                  'Format: TSD-[name initials]-[birth month]-[sign year]-MER6',
-                  'TSD-[الأحرف الأولى]-[شهر الميلاد]-[سنة التوقيع]-MER6 :التنسيق'
-                )}
-              </p>
-            </div>
-          )}
-
           {isSignUp && role === 'tech' && (
             <div>
               <label style={{
@@ -1363,46 +1275,6 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   {getText('Contremaître', 'Foreman', 'رئيس العمال')}
                 </option>
               </select>
-            </div>
-          )}
-
-          {isSignUp && role === 'office' && (
-            <div>
-              <label style={{
-                display: 'block',
-                marginBottom: '8px',
-                color: darkMode ? '#FFF' : '#2C3E50',
-                fontSize: '14px',
-                fontWeight: '600'
-              }}>
-                {getText('Numéro de contrat *', 'Contract Number *', 'رقم العقد *')}
-              </label>
-              <input
-                type="text"
-                value={contractNumber}
-                onChange={(e) => setContractNumber(e.target.value.toUpperCase())}
-                placeholder="BTSD-20/CAB/202603.MRR"
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  borderRadius: '12px',
-                  border: darkMode ? '2px solid rgba(255,255,255,0.2)' : '2px solid #E0E0E0',
-                  background: darkMode ? 'rgba(255,255,255,0.1)' : '#FFF',
-                  color: darkMode ? '#FFF' : '#2C3E50',
-                  fontSize: '15px',
-                  outline: 'none',
-                  transition: 'border-color 0.3s'
-                }}
-                onFocus={(e) => e.currentTarget.style.borderColor = '#00D4FF'}
-                onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0'}
-              />
-              <p style={{ margin: '6px 0 0', fontSize: '12px', color: darkMode ? 'rgba(255,255,255,0.5)' : '#999' }}>
-                {getText(
-                  'Format: BTSD-[jour naissance]/[initiales nom prenom]/[annee+mois signature].MRR',
-                  'Format: BTSD-[birth day]/[name initials]/[year+month sign].MRR',
-                  'BTSD-[يوم الميلاد]/[الأحرف الأولى]/[سنة+شهر التوقيع].MRR :التنسيق'
-                )}
-              </p>
             </div>
           )}
 
