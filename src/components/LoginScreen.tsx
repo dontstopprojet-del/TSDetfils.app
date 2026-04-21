@@ -1208,7 +1208,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                 type="text"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                placeholder={getText('Ex: Conakry', 'Ex: Conakry', 'مثال: كوناكري')}
+                placeholder=""
                 style={{
                   width: '100%',
                   padding: '14px',
@@ -1241,7 +1241,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                 type="text"
                 value={contractNumber}
                 onChange={(e) => setContractNumber(e.target.value.toUpperCase())}
-                placeholder="CTSD-AM/12/04/2026/MR6"
+                placeholder=""
                 style={{
                   width: '100%',
                   padding: '14px',
@@ -1256,13 +1256,6 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                 onFocus={(e) => e.currentTarget.style.borderColor = '#00D4FF'}
                 onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0'}
               />
-              <p style={{ margin: '6px 0 0', fontSize: '12px', color: darkMode ? 'rgba(255,255,255,0.5)' : '#999' }}>
-                {getText(
-                  'Format: CTSD-[initiale prenom]/[jour naissance]/[mois signature]/[annee signature]/MR6',
-                  'Format: CTSD-[first initial]/[birth day]/[sign month]/[sign year]/MR6',
-                  'CTSD-[الحرف الأول]/[يوم الميلاد]/[شهر التوقيع]/[سنة التوقيع]/MR6 :التنسيق'
-                )}
-              </p>
             </div>
           )}
 
@@ -1281,7 +1274,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                 type="text"
                 value={contractNumber}
                 onChange={(e) => setContractNumber(e.target.value.toUpperCase())}
-                placeholder="TSD-DAT-04-2026-MER6"
+                placeholder=""
                 style={{
                   width: '100%',
                   padding: '14px',
@@ -1296,13 +1289,6 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                 onFocus={(e) => e.currentTarget.style.borderColor = '#00D4FF'}
                 onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0'}
               />
-              <p style={{ margin: '6px 0 0', fontSize: '12px', color: darkMode ? 'rgba(255,255,255,0.5)' : '#999' }}>
-                {getText(
-                  'Format: TSD-[initiales nom prenom]-[mois naissance]-[annee signature]-MER6',
-                  'Format: TSD-[name initials]-[birth month]-[sign year]-MER6',
-                  'TSD-[الأحرف الأولى]-[شهر الميلاد]-[سنة التوقيع]-MER6 :التنسيق'
-                )}
-              </p>
             </div>
           )}
 
@@ -1381,7 +1367,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                 type="text"
                 value={contractNumber}
                 onChange={(e) => setContractNumber(e.target.value.toUpperCase())}
-                placeholder="BTSD-20/CAB/202603.MRR"
+                placeholder=""
                 style={{
                   width: '100%',
                   padding: '14px',
@@ -1396,13 +1382,6 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                 onFocus={(e) => e.currentTarget.style.borderColor = '#00D4FF'}
                 onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#E0E0E0'}
               />
-              <p style={{ margin: '6px 0 0', fontSize: '12px', color: darkMode ? 'rgba(255,255,255,0.5)' : '#999' }}>
-                {getText(
-                  'Format: BTSD-[jour naissance]/[initiales nom prenom]/[annee+mois signature].MRR',
-                  'Format: BTSD-[birth day]/[name initials]/[year+month sign].MRR',
-                  'BTSD-[يوم الميلاد]/[الأحرف الأولى]/[سنة+شهر التوقيع].MRR :التنسيق'
-                )}
-              </p>
             </div>
           )}
 
@@ -1531,7 +1510,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   type="text"
                   value={mad}
                   onChange={(e) => setMad(e.target.value)}
-                  placeholder={getText('Ex: Salimatou', 'Ex: Salimatou', 'مثال: سليماتو')}
+                  placeholder=""
                   style={{
                     width: '100%',
                     padding: '14px',
@@ -1562,7 +1541,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   type="text"
                   value={creationLocation}
                   onChange={(e) => setCreationLocation(e.target.value)}
-                  placeholder={getText('Ex: Belgique', 'Ex: Belgium', 'مثال: بلجيكا')}
+                  placeholder=""
                   style={{
                     width: '100%',
                     padding: '14px',
@@ -1593,7 +1572,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   type="text"
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
-                  placeholder={getText('Ex: Trooz', 'Ex: Trooz', 'مثال: ترووز')}
+                  placeholder=""
                   style={{
                     width: '100%',
                     padding: '14px',
@@ -1624,7 +1603,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
                   type="text"
                   value={postalCode}
                   onChange={(e) => setPostalCode(e.target.value)}
-                  placeholder={getText('Ex: 4870', 'Ex: 4870', 'مثال: 4870')}
+                  placeholder=""
                   style={{
                     width: '100%',
                     padding: '14px',
