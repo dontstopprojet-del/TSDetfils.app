@@ -198,6 +198,7 @@ const CreateAccountForm = ({ onClose, onSuccess, darkMode, colors, lang }: Creat
             name: formData.name,
             phone: formData.phone,
             role: formData.role,
+            contract_number: formData.contract_number || null,
             echelon: formData.echelon || null,
             status: formData.status || null,
             office_position: formData.office_position || null,
@@ -363,46 +364,70 @@ const CreateAccountForm = ({ onClose, onSuccess, darkMode, colors, lang }: Creat
           </div>
 
           {formData.role === 'tech' && (
-            <div style={{ marginBottom: '15px' }}>
-              <label style={labelStyle}>{t.echelon} *</label>
-              <select
-                value={formData.echelon}
-                onChange={(e) => setFormData(prev => ({ ...prev, echelon: e.target.value }))}
-                style={inputStyle}
-              >
-                <option value="">{t.selectEchelon}</option>
-                <option value="Apprenti">{t.apprenti}</option>
-                <option value="Manœuvre">{t.manoeuvre}</option>
-                <option value="Manœuvre Spécialisé">{t.manoeuvreSpecialise}</option>
-                <option value="Manœuvre Spécialisé d'Élite">{t.manoeuvreElite}</option>
-                <option value="Chef d'équipe A">{t.chefEquipeA}</option>
-                <option value="Chef d'équipe B">{t.chefEquipeB}</option>
-                <option value="Qualifié 1er Échelon">{t.qualifie1}</option>
-                <option value="Qualifié 2e Échelon">{t.qualifie2}</option>
-                <option value="Contremaître">{t.contremaitre}</option>
-              </select>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+              <div>
+                <label style={labelStyle}>{t.contractNumber}</label>
+                <input
+                  type="text"
+                  value={formData.contract_number}
+                  onChange={(e) => setFormData(prev => ({ ...prev, contract_number: e.target.value }))}
+                  style={inputStyle}
+                  placeholder="TSD-DAT-04-2026-MER6"
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>{t.echelon} *</label>
+                <select
+                  value={formData.echelon}
+                  onChange={(e) => setFormData(prev => ({ ...prev, echelon: e.target.value }))}
+                  style={inputStyle}
+                    >
+                  <option value="">{t.selectEchelon}</option>
+                  <option value="Apprenti">{t.apprenti}</option>
+                  <option value="Manœuvre">{t.manoeuvre}</option>
+                  <option value="Manœuvre Spécialisé">{t.manoeuvreSpecialise}</option>
+                  <option value="Manœuvre Spécialisé d'Élite">{t.manoeuvreElite}</option>
+                  <option value="Chef d'équipe A">{t.chefEquipeA}</option>
+                  <option value="Chef d'équipe B">{t.chefEquipeB}</option>
+                  <option value="Qualifié 1er Échelon">{t.qualifie1}</option>
+                  <option value="Qualifié 2e Échelon">{t.qualifie2}</option>
+                  <option value="Contremaître">{t.contremaitre}</option>
+                </select>
+              </div>
             </div>
           )}
 
           {formData.role === 'office' && (
-            <div style={{ marginBottom: '15px' }}>
-              <label style={labelStyle}>{t.position} *</label>
-              <select
-                value={formData.office_position}
-                onChange={(e) => {
-                  const pos = e.target.value;
-                  const access = pos ? (officeAccessMap[pos]?.[lang === 'fr' ? 'fr' : 'en'] || '') : '';
-                  setFormData(prev => ({ ...prev, office_position: pos, status: access }));
-                }}
-                style={inputStyle}
-              >
-                <option value="">{t.selectStatus}</option>
-                <option value="Directeur">{t.directeur}</option>
-                <option value="Responsable administratif & financier">{t.responsableAdminFinancier}</option>
-                <option value="Responsable RH">{t.responsableRH}</option>
-                <option value="Secrétaire / Assistante administrative">{t.secretaireAssistante}</option>
-                <option value="Comptable (interne ou externe)">{t.comptableInterneExterne}</option>
-              </select>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+              <div>
+                <label style={labelStyle}>{t.contractNumber}</label>
+                <input
+                  type="text"
+                  value={formData.contract_number}
+                  onChange={(e) => setFormData(prev => ({ ...prev, contract_number: e.target.value }))}
+                  style={inputStyle}
+                  placeholder="BTSD-20/CAB/202603.MRR"
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>{t.position} *</label>
+                <select
+                  value={formData.office_position}
+                  onChange={(e) => {
+                    const pos = e.target.value;
+                    const access = pos ? (officeAccessMap[pos]?.[lang === 'fr' ? 'fr' : 'en'] || '') : '';
+                    setFormData(prev => ({ ...prev, office_position: pos, status: access }));
+                  }}
+                  style={inputStyle}
+                    >
+                  <option value="">{t.selectStatus}</option>
+                  <option value="Directeur">{t.directeur}</option>
+                  <option value="Responsable administratif & financier">{t.responsableAdminFinancier}</option>
+                  <option value="Responsable RH">{t.responsableRH}</option>
+                  <option value="Secrétaire / Assistante administrative">{t.secretaireAssistante}</option>
+                  <option value="Comptable (interne ou externe)">{t.comptableInterneExterne}</option>
+                </select>
+              </div>
             </div>
           )}
 
@@ -425,15 +450,27 @@ const CreateAccountForm = ({ onClose, onSuccess, darkMode, colors, lang }: Creat
           )}
 
           {formData.role === 'client' && (
-            <div style={{ marginBottom: '15px' }}>
-              <label style={labelStyle}>{t.city} *</label>
-              <input
-                type="text"
-                value={formData.city}
-                onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                style={inputStyle}
-                placeholder={lang === 'fr' ? 'Ex: Conakry' : 'Ex: Conakry'}
-              />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+              <div>
+                <label style={labelStyle}>{t.city} *</label>
+                <input
+                  type="text"
+                  value={formData.city}
+                  onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                  style={inputStyle}
+                  placeholder={lang === 'fr' ? 'Ex: Conakry' : 'Ex: Conakry'}
+                    />
+              </div>
+              <div>
+                <label style={labelStyle}>{t.contractNumber}</label>
+                <input
+                  type="text"
+                  value={formData.contract_number}
+                  onChange={(e) => setFormData(prev => ({ ...prev, contract_number: e.target.value }))}
+                  style={inputStyle}
+                  placeholder="CTSD-AM/12/04/2026/MR6"
+                />
+              </div>
             </div>
           )}
 
