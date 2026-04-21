@@ -200,7 +200,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
         if (signUpError) throw signUpError;
 
         if (authData.user) {
-          const profileParams: any = {
+          const profileParams = {
             p_user_id: authData.user.id,
             p_email: email,
             p_name: name,
@@ -208,32 +208,18 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
             p_phone: phone || null,
             p_date_of_birth: dateOfBirth || null,
             p_contract_signature_date: contractSignatureDate || null,
-            p_marital_status: maritalStatus || null
+            p_marital_status: maritalStatus || null,
+            p_contract_number: contractNumber || null,
+            p_echelon: echelon || null,
+            p_status: status || null,
+            p_office_position: officePosition || null,
+            p_city: city || null,
+            p_created_date: createdDate || null,
+            p_mad: mad || null,
+            p_creation_location: creationLocation || null,
+            p_district: district || null,
+            p_postal_code: postalCode || null
           };
-
-          if (role === 'client') {
-            profileParams.p_city = city || null;
-            profileParams.p_contract_number = contractNumber || null;
-          }
-
-          if (role === 'tech') {
-            profileParams.p_contract_number = contractNumber || null;
-            profileParams.p_echelon = echelon || null;
-          }
-
-          if (role === 'office') {
-            profileParams.p_contract_number = contractNumber || null;
-            profileParams.p_office_position = officePosition || null;
-            profileParams.p_status = status || null;
-          }
-
-          if (role === 'admin') {
-            profileParams.p_created_date = createdDate || null;
-            profileParams.p_mad = mad || null;
-            profileParams.p_creation_location = creationLocation || null;
-            profileParams.p_district = district || null;
-            profileParams.p_postal_code = postalCode || null;
-          }
 
           const { error: profileError } = await supabase.rpc('create_user_profile', profileParams);
 
