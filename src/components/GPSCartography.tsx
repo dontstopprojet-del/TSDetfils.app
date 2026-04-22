@@ -547,7 +547,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
           popupAnchor: [0, -32]
         });
 
-       const marker = L.marker([location.latitude, location.longitude], { icon: customIcon })
+     const marker = L.marker([location.latitude, location.longitude], { icon: customIcon })
   .addTo(mapRef.current!)
   .bindPopup(`
     <div style="font-family: system-ui; min-width: 250px;">
@@ -569,7 +569,7 @@ markersRef.current.push(marker);
       });
 
       if (filteredLocs.length > 0) {
-        const bounds = L.latLngBounds(filteredLocs.map(loc => [loc.latitude, loc.longitude]));
+       const bounds = L.latLngBounds(filteredLocs.map(loc => [loc.latitude, loc.longitude]));
         mapRef.current.fitBounds(bounds, { padding: [50, 50] });
       }
     } else if (viewLevel === 'regions') {
@@ -604,7 +604,7 @@ markersRef.current.push(marker);
           popupAnchor: [0, -48]
         });
 
-       const marker = L.marker([region.lat, region.lng], { icon: customIcon })
+      const marker = L.marker([region.lat, region.lng], { icon: customIcon })
   .addTo(mapRef.current!)
   .bindPopup(`
     <div style="font-family: system-ui; min-width: 250px;">
@@ -626,14 +626,14 @@ markersRef.current.push(marker);
     </div>
   `);
 
-console.log('[GPSCartography] Marqueur ajouté pour', region.name_fr);
 markersRef.current.push(marker);
+console.log('[GPSCartography] Marqueur ajouté pour', region.name_fr);
       });
 
       console.log('[GPSCartography] Total marqueurs de régions ajoutés:', markersRef.current.length);
 
       if (filtered.length > 0) {
-        const bounds = L.latLngBounds(filtered.map(r => [r.lat, r.lng]));
+       const bounds = L.latLngBounds(filtered.map(r => [r.lat, r.lng]));
 mapRef.current.fitBounds(bounds, { padding: [50, 50] });
         console.log('[GPSCartography] Carte centrée sur les régions`);
       }
@@ -669,7 +669,7 @@ mapRef.current.fitBounds(bounds, { padding: [50, 50] });
           popupAnchor: [0, -36]
         });
 
-        const marker = L.marker([prefecture.lat, prefecture.lng], { icon: customIcon })
+       const marker = L.marker([prefecture.lat, prefecture.lng], { icon: customIcon })
   .addTo(mapRef.current!)
   .bindPopup(`
     <div style="font-family: system-ui; min-width: 220px;">
@@ -693,7 +693,7 @@ markersRef.current.push(marker);
       });
 
       if (filtered.length > 0) {
-      const bounds = L.latLngBounds(filtered.map(p => [p.lat, p.lng]));
+     const bounds = L.latLngBounds(filtered.map(p => [p.lat, p.lng]));
 mapRef.current.fitBounds(bounds, { padding: [50, 50] });
       }
     } else if (viewLevel === 'cities') {
@@ -762,7 +762,7 @@ mapRef.current.fitBounds(bounds, { padding: [50, 50] });
           return t.village;
         };
 
-      const marker = L.marker([city.lat, city.lng], { icon: customIcon })
+     const marker = L.marker([city.lat, city.lng], { icon: customIcon })
   .addTo(mapRef.current!)
   .bindPopup(`
     <div style="font-family: system-ui; min-width: 220px;">
@@ -785,7 +785,7 @@ markersRef.current.push(marker);
       });
 
       if (filtered.length > 0) {
-      const bounds = L.latLngBounds(filtered.map(c => [c.lat, c.lng]));
+     const bounds = L.latLngBounds(filtered.map(c => [c.lat, c.lng]));
 mapRef.current.fitBounds(bounds, { padding: [50, 50] });
       }
     } else if (viewLevel === 'communes') {
@@ -819,7 +819,7 @@ mapRef.current.fitBounds(bounds, { padding: [50, 50] });
           popupAnchor: [0, -28]
         });
 
-      const marker = L.marker([commune.lat, commune.lng], { icon: customIcon })
+     const marker = L.marker([commune.lat, commune.lng], { icon: customIcon })
   .addTo(mapRef.current!)
   .bindPopup(`
     <div style="font-family: system-ui; min-width: 200px;">
@@ -842,7 +842,7 @@ markersRef.current.push(marker);
       });
 
       if (filtered.length > 0) {
-      const bounds = L.latLngBounds(filtered.map(c => [c.lat, c.lng]));
+     const bounds = L.latLngBounds(filtered.map(c => [c.lat, c.lng]));
 mapRef.current.fitBounds(bounds, { padding: [50, 50] });
       }
     } else if (viewLevel === 'districts') {
@@ -876,7 +876,7 @@ mapRef.current.fitBounds(bounds, { padding: [50, 50] });
           popupAnchor: [0, -20]
         });
 
-    const marker = L.marker([district.lat, district.lng], { icon: customIcon })
+   const marker = L.marker([district.lat, district.lng], { icon: customIcon })
   .addTo(mapRef.current!)
   .bindPopup(`
     <div style="font-family: system-ui; min-width: 180px;">
@@ -899,7 +899,7 @@ markersRef.current.push(marker);
       });
 
       if (filtered.length > 0) {
-      const bounds = L.latLngBounds(filtered.map(d => [d.lat, d.lng]));
+     const bounds = L.latLngBounds(filtered.map(d => [d.lat, d.lng]));
 mapRef.current.fitBounds(bounds, { padding: [50, 50] });
       }
     }
