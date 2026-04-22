@@ -10,6 +10,8 @@ interface LegalTermsScreenProps {
 
 export default function LegalTermsScreen({ userId, onAccepted, colors, lang }: LegalTermsScreenProps) {
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const t = lang === 'fr' ? {
     title: 'Mentions Légales et Conditions',
@@ -115,42 +117,55 @@ export default function LegalTermsScreen({ userId, onAccepted, colors, lang }: L
         .maybeSingle();
 
       if (error) {
-        console.error('[LegalTerms] Check acceptance error:', error.message, error.details, error.hint);
+        console.error('[LegalTerms] Check failed:', error.code, error.message, error.details, error.hint);
       }
 
       if (!error && data?.accepted) {
         onAccepted();
       }
-      setLoading(false);
     } catch (err) {
-      console.error('[LegalTerms] Check acceptance exception:', err);
+      console.error('[LegalTerms] Check exception:', err);
+    } finally {
       setLoading(false);
     }
   };
 
   const handleApproval = async (approved: boolean) => {
+    if (!approved) {
+      alert(t.alertMessage);
+      return;
+    }
+
+    setSaving(true);
+    setSaveError('');
+
     try {
       const { error } = await supabase
         .from('legal_terms_acceptance')
         .upsert({
           user_id: userId,
-          accepted: approved,
-          accepted_at: approved ? new Date().toISOString() : null,
+          accepted: true,
+          accepted_at: new Date().toISOString(),
           terms_version: '1.0'
         }, { onConflict: 'user_id,terms_version' });
 
       if (error) {
-        console.error('[LegalTerms] Save acceptance error:', error.message, error.details, error.hint);
+        console.error('[LegalTerms] Save failed:', error.code, error.message, error.details, error.hint);
+        setSaveError(lang === 'fr'
+          ? `Erreur de sauvegarde: ${error.message}. Veuillez reessayer.`
+          : `Save error: ${error.message}. Please retry.`);
+        setSaving(false);
         return;
       }
 
-      if (approved) {
-        onAccepted();
-      } else {
-        alert(t.alertMessage);
-      }
-    } catch (err) {
-      console.error('[LegalTerms] Save acceptance exception:', err);
+      console.log('[LegalTerms] Acceptance saved successfully for user', userId);
+      onAccepted();
+    } catch (err: any) {
+      console.error('[LegalTerms] Save exception:', err);
+      setSaveError(lang === 'fr'
+        ? `Erreur inattendue: ${err.message}. Veuillez reessayer.`
+        : `Unexpected error: ${err.message}. Please retry.`);
+      setSaving(false);
     }
   };
 
@@ -251,9 +266,25 @@ export default function LegalTermsScreen({ userId, onAccepted, colors, lang }: L
           {t.confirmText}
         </p>
 
+        {saveError && (
+          <div style={{
+            padding: '12px',
+            borderRadius: '10px',
+            marginBottom: '15px',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            color: '#ef4444',
+            fontSize: '14px',
+            textAlign: 'center'
+          }}>
+            {saveError}
+          </div>
+        )}
+
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
           <button
             onClick={() => handleApproval(false)}
+            disabled={saving}
             style={{
               background: colors.danger,
               color: '#FFF',
@@ -262,32 +293,36 @@ export default function LegalTermsScreen({ userId, onAccepted, colors, lang }: L
               padding: '15px',
               fontSize: '16px',
               fontWeight: 'bold',
-              cursor: 'pointer',
+              cursor: saving ? 'not-allowed' : 'pointer',
+              opacity: saving ? 0.6 : 1,
               transition: 'transform 0.2s'
             }}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+            onMouseOver={(e) => { if (!saving) e.currentTarget.style.transform = 'scale(1.02)'; }}
             onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
-            ❌ {t.disapprove}
+            {t.disapprove}
           </button>
 
           <button
             onClick={() => handleApproval(true)}
+            disabled={saving}
             style={{
-              background: colors.success,
+              background: saving ? '#999' : colors.success,
               color: '#FFF',
               border: 'none',
               borderRadius: '12px',
               padding: '15px',
               fontSize: '16px',
               fontWeight: 'bold',
-              cursor: 'pointer',
+              cursor: saving ? 'not-allowed' : 'pointer',
               transition: 'transform 0.2s'
             }}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+            onMouseOver={(e) => { if (!saving) e.currentTarget.style.transform = 'scale(1.02)'; }}
             onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
-            ✅ {t.approve}
+            {saving
+              ? (lang === 'fr' ? 'Sauvegarde...' : 'Saving...')
+              : t.approve}
           </button>
         </div>
       </div>
