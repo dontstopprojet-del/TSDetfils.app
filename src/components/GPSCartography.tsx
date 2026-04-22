@@ -91,8 +91,8 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
   const [loading, setLoading] = useState(true);
   const [mapReady, setMapReady] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
-  const [viewLevel, setViewLevel] = useState<'users' | 'regions' | 'prefectures' | 'cities' | 'communes' | 'districts'>('regions');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [viewLevel, setViewLevel] = useState<'users' | 'regions' | 'prefectures' | 'cities' | 'communes' | 'districts'>('regions`);
+  const [searchQuery, setSearchQuery] = useState('`);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [selectedPrefecture, setSelectedPrefecture] = useState<string | null>(null);
   const [selectedCommune, setSelectedCommune] = useState<string | null>(null);
@@ -212,7 +212,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
   };
 
   useEffect(() => {
-    console.log('[GPSCartography] useEffect mounted');
+    console.log('[GPSCartography] useEffect mounted`);
     let mounted = true;
     let mapInitialized = false;
 
@@ -220,16 +220,16 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       console.log("VERSION NEW MAP FIX");
       if (!mounted || mapInitialized) return;
 
-      console.log('[GPSCartography] Début initialisation carte');
+      console.log('[GPSCartography] Début initialisation carte`);
 
       if (!mapContainerRef.current) {
-        console.error('[GPSCartography] ERREUR: mapContainerRef.current est NULL');
+        console.error('[GPSCartography] ERREUR: mapContainerRef.current est NULL`);
         setTimeout(initializeMap, 300);
         return;
       }
 
       if (mapRef.current) {
-        console.log('[GPSCartography] Carte déjà initialisée');
+        console.log('[GPSCartography] Carte déjà initialisée`);
         return;
       }
 
@@ -243,13 +243,13 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       });
 
       if (rect.width === 0 || rect.height === 0) {
-        console.error('[GPSCartography] Container a une dimension NULLE, retry...');
+        console.error('[GPSCartography] Container a une dimension NULLE, retry...`);
         setTimeout(initializeMap, 300);
         return;
       }
 
       try {
-        console.log('[GPSCartography] ========== CREATION CARTE ==========');
+        console.log('[GPSCartography] ========== CREATION CARTE ==========`);
 
         delete (L.Icon.Default.prototype as any)._getIconUrl;
         L.Icon.Default.mergeOptions({
@@ -265,7 +265,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
           attributionControl: true
         });
 
-        console.log('[GPSCartography] ✓ Instance carte créée');
+        console.log('[GPSCartography] ✓ Instance carte créée`);
         mapRef.current = map;
         mapInitialized = true;
 
@@ -282,9 +282,9 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
 
         setTimeout(() => {
   map.invalidateSize();
-  console.log('FIX map size');
+  console.log('FIX map size`);
 }, 300);
-        console.log('[GPSCartography] Tuiles OSM ajoutees');
+        console.log('[GPSCartography] Tuiles OSM ajoutees`);
 
         const doInvalidate = () => {
           if (mapRef.current && mounted) {
@@ -321,7 +321,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       .subscribe();
 
     return () => {
-      console.log('[GPSCartography] Cleanup...');
+      console.log('[GPSCartography] Cleanup...`);
       mounted = false;
       subscription.unsubscribe();
       if (mapRef.current) {
@@ -336,7 +336,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
   }, [locations, regions, prefectures, cities, communes, districts, viewLevel, selectedUser, selectedRegion, selectedPrefecture, selectedCommune, searchQuery]);
 
   const fetchAllData = async () => {
-    console.log('[GPSCartography] Début du chargement des données...');
+    console.log('[GPSCartography] Début du chargement des données...`);
     setLoading(true);
     await Promise.all([
       fetchLocations(),
@@ -347,7 +347,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       fetchDistricts()
     ]);
     setLoading(false);
-    console.log('[GPSCartography] Données chargées avec succès');
+    console.log('[GPSCartography] Données chargées avec succès`);
   };
 
   const fetchLocations = async () => {
@@ -390,7 +390,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       const { data, error } = await supabase
         .from('guinea_regions')
         .select('*')
-        .order('name');
+        .order('name`);
 
       if (error) {
         console.error('Error fetching regions:', error);
@@ -415,7 +415,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       const { data, error } = await supabase
         .from('guinea_prefectures')
         .select('*')
-        .order('name');
+        .order('name`);
 
       if (error) {
         console.error('Error fetching prefectures:', error);
@@ -440,7 +440,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       const { data, error } = await supabase
         .from('guinea_cities')
         .select('*')
-        .order('name');
+        .order('name`);
 
       if (error) {
         console.error('Error fetching cities:', error);
@@ -465,7 +465,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       const { data, error } = await supabase
         .from('guinea_communes')
         .select('*')
-        .order('name');
+        .order('name`);
 
       if (!error && data) {
         setCommunes(data.map((c: any) => ({
@@ -484,7 +484,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       const { data, error } = await supabase
         .from('guinea_districts')
         .select('*')
-        .order('name');
+        .order('name`);
 
       if (!error && data) {
         setDistricts(data.map((d: any) => ({
@@ -500,11 +500,11 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
 
   const updateMapMarkers = () => {
     if (!mapRef.current) {
-      console.log('[GPSCartography] Carte non initialisée, impossible d\'ajouter des marqueurs');
+      console.log('[GPSCartography] Carte non initialisée, impossible d\'ajouter des marqueurs`);
       return;
     }
 
-    console.log('[GPSCartography] Mise à jour des marqueurs...');
+    console.log('[GPSCartography] Mise à jour des marqueurs...`);
     console.log('[GPSCartography] Niveau de vue:', viewLevel);
     console.log('[GPSCartography] Nombre de régions:', regions.length);
     console.log('[GPSCartography] Nombre de préfectures:', prefectures.length);
@@ -513,7 +513,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
 
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
-    console.log('[GPSCartography] Anciens marqueurs supprimés');
+    console.log('[GPSCartography] Anciens marqueurs supprimés`);
 
     if (viewLevel === 'users') {
       const filteredLocs = selectedUser
@@ -547,25 +547,25 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
           popupAnchor: [0, -32]
         });
 
-        const marker = L.marker([location.latitude, location.longitude], { icon: customIcon })
-          .addTo(mapRef.current!)
-          .bindPopup(`
-            <div style="font-family: system-ui; min-width: 200px;">
-              <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 700; color: #2C3E50;">
-                ${location.user_name}
-              </h3>
-              <div style="font-size: 12px; color: #64748B; margin-bottom: 4px;">
-                <strong>${t.position}:</strong><br/>
-                ${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}
-              </div>
-              <div style="font-size: 12px; color: #64748B; margin-bottom: 4px;">
-                <strong>${t.lastUpdate}:</strong><br/>
-                ${formatDate(location.updated_at)}
-              </div>
-            </div>
-          `);
+       const marker = L.marker([location.latitude, location.longitude], { icon: customIcon })
+  .addTo(mapRef.current!)
+  .bindPopup(`
+    <div style="font-family: system-ui; min-width: 250px;">
+      <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 700; color: #2C3E50;">
+        ${location.user_name}
+      </h3>
+      <div style="font-size: 12px; color: #64748B; margin-bottom: 4px;">
+        <strong>${t.position}:</strong><br/>
+        ${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}
+      </div>
+      <div style="font-size: 12px; color: #64748B; margin-bottom: 4px;">
+        <strong>${t.lastUpdate}:</strong><br/>
+        ${formatDate(location.updated_at)}
+      </div>
+    </div>
+  `);
 
-        markersRef.current.push(marker);
+markersRef.current.push(marker);
       });
 
       if (filteredLocs.length > 0) {
@@ -582,7 +582,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
         );
       }
 
-      console.log('[GPSCartography] Ajout de', filtered.length, 'marqueurs de régions');
+      console.log('[GPSCartography] Ajout de', filtered.length, 'marqueurs de régions`);
       filtered.forEach((region, index) => {
        console.log(`[GPSCartography] Région ${index + 1} :`, region.name_fr, 'à', region.lat, region.lng);
         const customIcon = L.divIcon({
@@ -604,38 +604,38 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
           popupAnchor: [0, -48]
         });
 
-        const marker = L.marker([region.lat, region.lng], { icon: customIcon })
-          .addTo(mapRef.current!)
-          .bindPopup(`
-            <div style="font-family: system-ui; min-width: 250px;">
-              <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 700; color: #DC2626;">
-                ${region.name_fr}
-              </h3>
-              <div style="font-size: 13px; color: #64748B; margin-bottom: 4px;">
-                <strong>${t.capital}:</strong> ${region.capital}
-              </div>
-              <div style="font-size: 13px; color: #64748B; margin-bottom: 4px;">
-                <strong>${t.population}:</strong> ${region.population.toLocaleString()} habitants
-              </div>
-              <div style="font-size: 13px; color: #64748B; margin-bottom: 4px;">
-                <strong>${t.area}:</strong> ${region.area_km2.toLocaleString()} km²
-              </div>
-              <div style="font-size: 12px; color: #94A3B8; margin-top: 8px;">
-                ${region.lat.toFixed(4)}, ${region.lng.toFixed(4)}
-              </div>
-            </div>
-          `);
+       const marker = L.marker([region.lat, region.lng], { icon: customIcon })
+  .addTo(mapRef.current!)
+  .bindPopup(`
+    <div style="font-family: system-ui; min-width: 250px;">
+      <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 700; color: #DC2626;">
+        ${region.name_fr}
+      </h3>
+      <div style="font-size: 13px; color: #64748B; margin-bottom: 4px;">
+        <strong>${t.capital}:</strong> ${region.capital}
+      </div>
+      <div style="font-size: 13px; color: #64748B; margin-bottom: 4px;">
+        <strong>${t.population}:</strong> ${region.population.toLocaleString()} habitants
+      </div>
+      <div style="font-size: 13px; color: #64748B; margin-bottom: 4px;">
+        <strong>${t.area}:</strong> ${region.area_km2.toLocaleString()} km²
+      </div>
+      <div style="font-size: 12px; color: #94A3B8; margin-top: 8px;">
+        ${region.lat.toFixed(4)}, ${region.lng.toFixed(4)}
+      </div>
+    </div>
+  `);
 
-        console.log(`[GPSCartography] Marqueur ajouté pour`, region.name_fr);
-        markersRef.current.push(marker);
+console.log('[GPSCartography] Marqueur ajouté pour', region.name_fr);
+markersRef.current.push(marker);
       });
 
       console.log('[GPSCartography] Total marqueurs de régions ajoutés:', markersRef.current.length);
 
       if (filtered.length > 0) {
-        const bounds = L.latLngBounds(filtered.map(r => [r.latitude, r.longitude]));
-        mapRef.current.fitBounds(bounds, { padding: [50, 50] });
-        console.log('[GPSCartography] Carte centrée sur les régions');
+        const bounds = L.latLngBounds(filtered.map(r => [r.lat, r.lng]));
+mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+        console.log('[GPSCartography] Carte centrée sur les régions`);
       }
     } else if (viewLevel === 'prefectures') {
       let filtered = prefectures;
@@ -669,32 +669,32 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
           popupAnchor: [0, -36]
         });
 
-        const marker = L.marker([prefecture.lat, prefecture.lng], { ... })
-          .addTo(mapRef.current!)
-         .bindPopup(`
-  <div style="font-family: system-ui; min-width: 220px;">
-    <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 700; color: #F59E0B;">
-      ${prefecture.name_fr}
-    </h3>
-    ${prefecture.is_capital ? '<div style="font-size: 11px; color: #DC2626; font-weight: 600; margin-bottom: 4px;">⭐ Capitale préfectorale</div>' : ''}
-    <div style="font-size: 12px; color: #64748B; margin-bottom: 4px;">
-      <strong>${t.population}:</strong> ${prefecture.population.toLocaleString()}
+        const marker = L.marker([prefecture.lat, prefecture.lng], { icon: customIcon })
+  .addTo(mapRef.current!)
+  .bindPopup(`
+    <div style="font-family: system-ui; min-width: 220px;">
+      <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 700; color: #F59E0B;">
+        ${prefecture.name_fr}
+      </h3>
+      ${prefecture.is_capital ? '<div style="font-size: 11px; color: #DC2626; font-weight: 600; margin-bottom: 4px;">⭐ Capitale préfectorale</div>' : ''}
+      <div style="font-size: 12px; color: #64748B; margin-bottom: 4px;">
+        <strong>${t.population}:</strong> ${prefecture.population.toLocaleString()}
+      </div>
+      <div style="font-size: 12px; color: #64748B; margin-bottom: 4px;">
+        <strong>${t.area}:</strong> ${prefecture.area_km2.toLocaleString()} km²
+      </div>
+      <div style="font-size: 11px; color: #94A3B8; margin-top: 6px;">
+        ${prefecture.lat.toFixed(4)}, ${prefecture.lng.toFixed(4)}
+      </div>
     </div>
-    <div style="font-size: 12px; color: #64748B; margin-bottom: 4px;">
-      <strong>${t.area}:</strong> ${prefecture.area_km2.toLocaleString()} km²
-    </div>
-    <div style="font-size: 11px; color: #94A3B8; margin-top: 6px;">
-      ${prefecture.lat.toFixed(4)}, ${prefecture.lng.toFixed(4)}
-    </div>
-  </div>
-`);
+  `);
 
-        markersRef.current.push(marker);
+markersRef.current.push(marker);
       });
 
       if (filtered.length > 0) {
-       const bounds = L.latLngBounds(filtered.map(p => [p.lat, p.lng]));
-        mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+      const bounds = L.latLngBounds(filtered.map(p => [p.lat, p.lng]));
+mapRef.current.fitBounds(bounds, { padding: [50, 50] });
       }
     } else if (viewLevel === 'cities') {
       let filtered = cities;
@@ -762,31 +762,31 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
           return t.village;
         };
 
-       const marker = L.marker([city.lat, city.lng], { icon: customIcon })
-          .addTo(mapRef.current!)
-          .bindPopup(`
-            <div style="font-family: system-ui; min-width: 220px;">
-              <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 700; color: ${getCityColor(city.type)};">
-                ${city.name_fr}
-              </h3>
-              <div style="font-size: 11px; color: ${getCityColor(city.type)}; font-weight: 600; margin-bottom: 6px;">
-                ${getCityIcon(city.type)} ${getCityTypeLabel(city.type)}
-              </div>
-              <div style="font-size: 12px; color: #64748B; margin-bottom: 4px;">
-                <strong>${t.population}:</strong> ${city.population.toLocaleString()} habitants
-              </div>
-              <div style="font-size: 11px; color: #94A3B8; margin-top: 6px;">
-               ${city.lat.toFixed(4)}, ${city.lng.toFixed(4)}
-              </div>
-            </div>
-          `);
+      const marker = L.marker([city.lat, city.lng], { icon: customIcon })
+  .addTo(mapRef.current!)
+  .bindPopup(`
+    <div style="font-family: system-ui; min-width: 220px;">
+      <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 700; color: ${getCityColor(city.type)};">
+        ${city.name_fr}
+      </h3>
+      <div style="font-size: 11px; color: ${getCityColor(city.type)}; font-weight: 600; margin-bottom: 6px;">
+        ${getCityIcon(city.type)} ${getCityTypeLabel(city.type)}
+      </div>
+      <div style="font-size: 12px; color: #64748B; margin-bottom: 4px;">
+        <strong>${t.population}:</strong> ${city.population.toLocaleString()} habitants
+      </div>
+      <div style="font-size: 11px; color: #94A3B8; margin-top: 6px;">
+        ${city.lat.toFixed(4)}, ${city.lng.toFixed(4)}
+      </div>
+    </div>
+  `);
 
-        markersRef.current.push(marker);
+markersRef.current.push(marker);
       });
 
       if (filtered.length > 0) {
-       const bounds = L.latLngBounds(filtered.map(c => [c.lat, c.lng]));
-        mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+      const bounds = L.latLngBounds(filtered.map(c => [c.lat, c.lng]));
+mapRef.current.fitBounds(bounds, { padding: [50, 50] });
       }
     } else if (viewLevel === 'communes') {
       let filtered = communes;
@@ -819,31 +819,31 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
           popupAnchor: [0, -28]
         });
 
-       const marker = L.marker([commune.lat, commune.lng], { icon: customIcon })
-          .addTo(mapRef.current!)
-          .bindPopup(`
-            <div style="font-family: system-ui; min-width: 200px;">
-              <h3 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 700; color: ${commune.type === 'urbaine' ? '#10B981' : '#8B5CF6'};">
-                ${commune.name}
-              </h3>
-              <div style="font-size: 11px; color: #64748B; margin-bottom: 4px;">
-                <strong>Type:</strong> ${commune.type === 'urbaine' ? t.urban : t.rural}
-              </div>
-              <div style="font-size: 11px; color: #64748B; margin-bottom: 4px;">
-                <strong>${t.population}:</strong> ${commune.population.toLocaleString()}
-              </div>
-              <div style="font-size: 10px; color: #94A3B8; margin-top: 6px;">
-               ${commune.lat.toFixed(4)}, ${commune.lng.toFixed(4)}
-              </div>
-            </div>
-          `);
+      const marker = L.marker([commune.lat, commune.lng], { icon: customIcon })
+  .addTo(mapRef.current!)
+  .bindPopup(`
+    <div style="font-family: system-ui; min-width: 200px;">
+      <h3 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 700; color: ${commune.type === 'urbaine' ? '#10B981' : '#8B5CF6'};">
+        ${commune.name}
+      </h3>
+      <div style="font-size: 11px; color: #64748B; margin-bottom: 4px;">
+        <strong>Type:</strong> ${commune.type === 'urbaine' ? t.urban : t.rural}
+      </div>
+      <div style="font-size: 11px; color: #64748B; margin-bottom: 4px;">
+        <strong>${t.population}:</strong> ${commune.population.toLocaleString()}
+      </div>
+      <div style="font-size: 10px; color: #94A3B8; margin-top: 6px;">
+        ${commune.lat.toFixed(4)}, ${commune.lng.toFixed(4)}
+      </div>
+    </div>
+  `);
 
-        markersRef.current.push(marker);
+markersRef.current.push(marker);
       });
 
       if (filtered.length > 0) {
-       const bounds = L.latLngBounds(filtered.map(c => [c.lat, c.lng]));
-        mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+      const bounds = L.latLngBounds(filtered.map(c => [c.lat, c.lng]));
+mapRef.current.fitBounds(bounds, { padding: [50, 50] });
       }
     } else if (viewLevel === 'districts') {
       let filtered = districts;
@@ -876,31 +876,31 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
           popupAnchor: [0, -20]
         });
 
-      const marker = L.marker([district.lat, district.lng], { icon: customIcon })
-          .addTo(mapRef.current!)
-          .bindPopup(`
-            <div style="font-family: system-ui; min-width: 180px;">
-              <h3 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 700; color: #EC4899;">
-                ${district.name}
-              </h3>
-              <div style="font-size: 11px; color: #64748B; margin-bottom: 4px;">
-                <strong>Type:</strong> ${district.type === 'quartier' ? t.quarter : district.type === 'district' ? t.district : t.sector}
-              </div>
-              <div style="font-size: 11px; color: #64748B; margin-bottom: 4px;">
-                <strong>${t.population}:</strong> ${district.population.toLocaleString()}
-              </div>
-              <div style="font-size: 10px; color: #94A3B8; margin-top: 6px;">
-               ${district.lat.toFixed(5)}, ${district.lng.toFixed(5)}
-              </div>
-            </div>
-          `);
+    const marker = L.marker([district.lat, district.lng], { icon: customIcon })
+  .addTo(mapRef.current!)
+  .bindPopup(`
+    <div style="font-family: system-ui; min-width: 180px;">
+      <h3 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 700; color: #EC4899;">
+        ${district.name}
+      </h3>
+      <div style="font-size: 11px; color: #64748B; margin-bottom: 4px;">
+        <strong>Type:</strong> ${district.type === 'quartier' ? t.quarter : district.type === 'district' ? t.district : district.type}
+      </div>
+      <div style="font-size: 11px; color: #64748B; margin-bottom: 4px;">
+        <strong>${t.population}:</strong> ${district.population.toLocaleString()}
+      </div>
+      <div style="font-size: 10px; color: #94A3B8; margin-top: 6px;">
+        ${district.lat.toFixed(5)}, ${district.lng.toFixed(5)}
+      </div>
+    </div>
+  `);
 
-        markersRef.current.push(marker);
+markersRef.current.push(marker);
       });
 
       if (filtered.length > 0) {
       const bounds = L.latLngBounds(filtered.map(d => [d.lat, d.lng]));
-        mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+mapRef.current.fitBounds(bounds, { padding: [50, 50] });
       }
     }
   };
