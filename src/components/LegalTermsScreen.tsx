@@ -109,17 +109,21 @@ export default function LegalTermsScreen({ userId, onAccepted, colors, lang }: L
     try {
       const { data, error } = await supabase
         .from('legal_terms_acceptance')
-        .select('*')
+        .select('accepted')
         .eq('user_id', userId)
         .eq('terms_version', '1.0')
         .maybeSingle();
+
+      if (error) {
+        console.error('[LegalTerms] Check acceptance error:', error.message, error.details, error.hint);
+      }
 
       if (!error && data?.accepted) {
         onAccepted();
       }
       setLoading(false);
     } catch (err) {
-      console.error('Error checking acceptance:', err);
+      console.error('[LegalTerms] Check acceptance exception:', err);
       setLoading(false);
     }
   };
@@ -128,21 +132,25 @@ export default function LegalTermsScreen({ userId, onAccepted, colors, lang }: L
     try {
       const { error } = await supabase
         .from('legal_terms_acceptance')
-        .insert({
+        .upsert({
           user_id: userId,
           accepted: approved,
-          signature_data: JSON.stringify({ approved, timestamp: new Date().toISOString() }),
           accepted_at: approved ? new Date().toISOString() : null,
           terms_version: '1.0'
-        });
+        }, { onConflict: 'user_id,terms_version' });
 
-      if (!error && approved) {
+      if (error) {
+        console.error('[LegalTerms] Save acceptance error:', error.message, error.details, error.hint);
+        return;
+      }
+
+      if (approved) {
         onAccepted();
-      } else if (!error && !approved) {
+      } else {
         alert(t.alertMessage);
       }
     } catch (err) {
-      console.error('Error saving acceptance:', err);
+      console.error('[LegalTerms] Save acceptance exception:', err);
     }
   };
 

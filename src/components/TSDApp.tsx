@@ -428,10 +428,14 @@ const TSDApp = ({ onBackToVisitor, isPasswordRecovery }: { onBackToVisitor?: () 
     try {
       const { data, error } = await supabase
         .from('legal_terms_acceptance')
-        .select('*')
+        .select('accepted')
         .eq('user_id', currentUser.id)
         .eq('terms_version', '1.0')
         .maybeSingle();
+
+      if (error) {
+        console.error('[LegalTerms] Check error:', error.message, error.details, error.hint);
+      }
 
       if (!error && data?.accepted) {
         setLegalTermsAccepted(true);
@@ -439,7 +443,7 @@ const TSDApp = ({ onBackToVisitor, isPasswordRecovery }: { onBackToVisitor?: () 
         setLegalTermsAccepted(false);
       }
     } catch (err) {
-      console.error('Error checking legal terms:', err);
+      console.error('[LegalTerms] Check exception:', err);
     }
   };
 
