@@ -91,8 +91,8 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
   const [loading, setLoading] = useState(true);
   const [mapReady, setMapReady] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
-  const [viewLevel, setViewLevel] = useState<'users' | 'regions' | 'prefectures' | 'cities' | 'communes' | 'districts'>('regions`);
-  const [searchQuery, setSearchQuery] = useState('`);
+  const [viewLevel, setViewLevel] = useState<'users' | 'regions' | 'prefectures' | 'cities' | 'communes' | 'districts'>('regions');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [selectedPrefecture, setSelectedPrefecture] = useState<string | null>(null);
   const [selectedCommune, setSelectedCommune] = useState<string | null>(null);
@@ -212,7 +212,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
   };
 
   useEffect(() => {
-    console.log('[GPSCartography] useEffect mounted`);
+    console.log('[GPSCartography] useEffect mounted');
     let mounted = true;
     let mapInitialized = false;
 
@@ -220,16 +220,16 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       console.log("VERSION NEW MAP FIX");
       if (!mounted || mapInitialized) return;
 
-      console.log('[GPSCartography] Début initialisation carte`);
+      console.log('[GPSCartography] Début initialisation carte');
 
       if (!mapContainerRef.current) {
-        console.error('[GPSCartography] ERREUR: mapContainerRef.current est NULL`);
+        console.error('[GPSCartography] ERREUR: mapContainerRef.current est NULL');
         setTimeout(initializeMap, 300);
         return;
       }
 
       if (mapRef.current) {
-        console.log('[GPSCartography] Carte déjà initialisée`);
+        console.log('[GPSCartography] Carte déjà initialisée');
         return;
       }
 
@@ -243,13 +243,13 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       });
 
       if (rect.width === 0 || rect.height === 0) {
-        console.error('[GPSCartography] Container a une dimension NULLE, retry...`);
+        console.error('[GPSCartography] Container a une dimension NULLE, retry...');
         setTimeout(initializeMap, 300);
         return;
       }
 
       try {
-        console.log('[GPSCartography] ========== CREATION CARTE ==========`);
+        console.log('[GPSCartography] ========== CREATION CARTE ==========');
 
         delete (L.Icon.Default.prototype as any)._getIconUrl;
         L.Icon.Default.mergeOptions({
@@ -265,7 +265,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
           attributionControl: true
         });
 
-        console.log('[GPSCartography] ✓ Instance carte créée`);
+        console.log('[GPSCartography] ✓ Instance carte créée');
         mapRef.current = map;
         mapInitialized = true;
 
@@ -282,9 +282,9 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
 
         setTimeout(() => {
   map.invalidateSize();
-  console.log('FIX map size`);
+  console.log('FIX map size');
 }, 300);
-        console.log('[GPSCartography] Tuiles OSM ajoutees`);
+        console.log('[GPSCartography] Tuiles OSM ajoutees');
 
         const doInvalidate = () => {
           if (mapRef.current && mounted) {
@@ -321,7 +321,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       .subscribe();
 
     return () => {
-      console.log('[GPSCartography] Cleanup...`);
+      console.log('[GPSCartography] Cleanup...');
       mounted = false;
       subscription.unsubscribe();
       if (mapRef.current) {
@@ -336,7 +336,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
   }, [locations, regions, prefectures, cities, communes, districts, viewLevel, selectedUser, selectedRegion, selectedPrefecture, selectedCommune, searchQuery]);
 
   const fetchAllData = async () => {
-    console.log('[GPSCartography] Début du chargement des données...`);
+    console.log('[GPSCartography] Début du chargement des données...');
     setLoading(true);
     await Promise.all([
       fetchLocations(),
@@ -347,7 +347,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       fetchDistricts()
     ]);
     setLoading(false);
-    console.log('[GPSCartography] Données chargées avec succès`);
+    console.log('[GPSCartography] Données chargées avec succès');
   };
 
   const fetchLocations = async () => {
@@ -365,8 +365,8 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       const mappedLocations = locationsData?.map((loc: any) => ({
         id: loc.id,
         user_id: loc.user_id,
-        latitude: parseFloat(loc.latitude),
-        longitude: parseFloat(loc.longitude),
+        lat: parseFloat(loc.latitude),
+        lng: parseFloat(loc.longitude),
         updated_at: loc.updated_at,
         user_name: loc.app_users.name,
         user_role: loc.app_users.role
@@ -390,7 +390,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       const { data, error } = await supabase
         .from('guinea_regions')
         .select('*')
-        .order('name`);
+        .order('name');
 
       if (error) {
         console.error('Error fetching regions:', error);
@@ -415,7 +415,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       const { data, error } = await supabase
         .from('guinea_prefectures')
         .select('*')
-        .order('name`);
+        .order('name');
 
       if (error) {
         console.error('Error fetching prefectures:', error);
@@ -440,7 +440,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       const { data, error } = await supabase
         .from('guinea_cities')
         .select('*')
-        .order('name`);
+        .order('name');
 
       if (error) {
         console.error('Error fetching cities:', error);
@@ -465,7 +465,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       const { data, error } = await supabase
         .from('guinea_communes')
         .select('*')
-        .order('name`);
+        .order('name');
 
       if (!error && data) {
         setCommunes(data.map((c: any) => ({
@@ -484,7 +484,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       const { data, error } = await supabase
         .from('guinea_districts')
         .select('*')
-        .order('name`);
+        .order('name');
 
       if (!error && data) {
         setDistricts(data.map((d: any) => ({
@@ -500,11 +500,11 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
 
   const updateMapMarkers = () => {
     if (!mapRef.current) {
-      console.log('[GPSCartography] Carte non initialisée, impossible d\'ajouter des marqueurs`);
+      console.log('[GPSCartography] Carte non initialisée, impossible d\'ajouter des marqueurs');
       return;
     }
 
-    console.log('[GPSCartography] Mise à jour des marqueurs...`);
+    console.log('[GPSCartography] Mise à jour des marqueurs...');
     console.log('[GPSCartography] Niveau de vue:', viewLevel);
     console.log('[GPSCartography] Nombre de régions:', regions.length);
     console.log('[GPSCartography] Nombre de préfectures:', prefectures.length);
@@ -513,7 +513,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
 
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
-    console.log('[GPSCartography] Anciens marqueurs supprimés`);
+    console.log('[GPSCartography] Anciens marqueurs supprimés');
 
     if (viewLevel === 'users') {
       const filteredLocs = selectedUser
@@ -547,7 +547,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
           popupAnchor: [0, -32]
         });
 
-     const marker = L.marker([location.latitude, location.longitude], { icon: customIcon })
+     const marker = L.marker([location.lat, location.lng], { icon: customIcon })
   .addTo(mapRef.current!)
   .bindPopup(`
     <div style="font-family: system-ui; min-width: 250px;">
@@ -556,7 +556,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       </h3>
       <div style="font-size: 12px; color: #64748B; margin-bottom: 4px;">
         <strong>${t.position}:</strong><br/>
-        ${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}
+        ${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}
       </div>
       <div style="font-size: 12px; color: #64748B; margin-bottom: 4px;">
         <strong>${t.lastUpdate}:</strong><br/>
@@ -569,7 +569,7 @@ markersRef.current.push(marker);
       });
 
       if (filteredLocs.length > 0) {
-       const bounds = L.latLngBounds(filteredLocs.map(loc => [loc.latitude, loc.longitude]));
+       const bounds = L.latLngBounds(filteredLocs.map(loc => [loc.lat, loc.lng]));
         mapRef.current.fitBounds(bounds, { padding: [50, 50] });
       }
     } else if (viewLevel === 'regions') {
@@ -582,7 +582,7 @@ markersRef.current.push(marker);
         );
       }
 
-      console.log('[GPSCartography] Ajout de', filtered.length, 'marqueurs de régions`);
+      console.log('[GPSCartography] Ajout de', filtered.length, 'marqueurs de régions');
       filtered.forEach((region, index) => {
        console.log(`[GPSCartography] Région ${index + 1} :`, region.name_fr, 'à', region.lat, region.lng);
         const customIcon = L.divIcon({
@@ -635,7 +635,7 @@ console.log('[GPSCartography] Marqueur ajouté pour', region.name_fr);
       if (filtered.length > 0) {
        const bounds = L.latLngBounds(filtered.map(r => [r.lat, r.lng]));
 mapRef.current.fitBounds(bounds, { padding: [50, 50] });
-        console.log('[GPSCartography] Carte centrée sur les régions`);
+        console.log('[GPSCartography] Carte centrée sur les régions');
       }
     } else if (viewLevel === 'prefectures') {
       let filtered = prefectures;
