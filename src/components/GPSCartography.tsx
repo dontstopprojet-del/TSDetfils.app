@@ -584,7 +584,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
 
       console.log('[GPSCartography] Ajout de', filtered.length, 'marqueurs de régions');
       filtered.forEach((region, index) => {
-        console.log(`[GPSCartography] Région ${index + 1}:`, region.name_fr, 'à', region.latitude, region.longitude);
+       console.log(`[GPSCartography] Région ${index + 1} :`, region.name_fr, 'à', region.lat, region.lng);
         const customIcon = L.divIcon({
           className: 'custom-marker',
           html: `<div style="
@@ -604,7 +604,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
           popupAnchor: [0, -48]
         });
 
-        const marker = L.marker([region.latitude, region.longitude], { icon: customIcon })
+        const marker = L.marker([region.lat, region.lng], { icon: customIcon })
           .addTo(mapRef.current!)
           .bindPopup(`
             <div style="font-family: system-ui; min-width: 250px;">
@@ -621,7 +621,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
                 <strong>${t.area}:</strong> ${region.area_km2.toLocaleString()} km²
               </div>
               <div style="font-size: 12px; color: #94A3B8; margin-top: 8px;">
-                ${region.latitude.toFixed(4)}, ${region.longitude.toFixed(4)}
+                ${region.lat.toFixed(4)}, ${region.lng.toFixed(4)}
               </div>
             </div>
           `);
