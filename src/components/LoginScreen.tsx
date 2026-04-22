@@ -223,7 +223,10 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
               postal_code: postalCode || null
             }, { onConflict: 'id' });
 
-          if (profileError) throw profileError;
+          if (profileError) {
+            console.error('[Signup] app_users upsert failed:', profileError.message, profileError.details, profileError.hint);
+            throw profileError;
+          }
 
           setShowEmailVerification(true);
         }
@@ -262,6 +265,7 @@ const LoginScreen = ({ translations: t, lang, darkMode, onLoginSuccess, onLangua
         }
       }
     } catch (err: any) {
+      console.error('[Auth] Error:', err.message, err);
       const errorMessage = err.message || getText('Une erreur est survenue', 'An error occurred', 'حدث خطأ');
       setError(translateError(errorMessage));
     } finally {

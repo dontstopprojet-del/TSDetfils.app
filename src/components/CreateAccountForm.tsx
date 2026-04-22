@@ -192,7 +192,7 @@ const CreateAccountForm = ({ onClose, onSuccess, darkMode, colors, lang }: Creat
       if (authData.user) {
         const { error: profileError } = await supabase
           .from('app_users')
-          .insert({
+          .upsert({
             id: authData.user.id,
             email: formData.email,
             name: formData.name,
@@ -207,9 +207,12 @@ const CreateAccountForm = ({ onClose, onSuccess, darkMode, colors, lang }: Creat
             marital_status: formData.marital_status,
             city: formData.city || null,
             contract_date: formData.contract_signature_date || new Date().toISOString().split('T')[0]
-          });
+          }, { onConflict: 'id' });
 
-        if (profileError) throw profileError;
+        if (profileError) {
+          console.error('[CreateAccount] app_users upsert failed:', profileError.message, profileError.details, profileError.hint);
+          throw profileError;
+        }
 
         const emailMsg = lang === 'fr'
           ? 'Compte cree ! Un email de verification a ete envoye.'
