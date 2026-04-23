@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { useRealtimePlanning, useRealtimePlanningTechnicians, useRealtimeProjects } from '../hooks/useRealtimeSync';
+import { safeDate } from '../utils/safeFormat';
 
 interface TechnicianDetail {
   id: string;
@@ -473,17 +474,17 @@ const EnhancedPlanning: React.FC<EnhancedPlanningProps> = ({ userRole, darkMode 
 
   const formatDateHeader = () => {
     if (view === 'custom') {
-      return `${new Date(customStartDate || '').toLocaleDateString('fr-FR')} - ${new Date(customEndDate || '').toLocaleDateString('fr-FR')}`;
+      return `${safeDate(customStartDate)} - ${safeDate(customEndDate)}`;
     }
     if (view === 'day') {
-      return currentDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      return safeDate(currentDate);
     }
     if (view === 'week') {
       const start = new Date(getStartDate());
       const end = new Date(getEndDate());
-      return `${start.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+      return `${safeDate(start)} - ${safeDate(end)}`;
     }
-    return currentDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    return safeDate(currentDate);
   };
 
   const getStatusColor = (status?: string) => {
@@ -705,9 +706,9 @@ const EnhancedPlanning: React.FC<EnhancedPlanningProps> = ({ userRole, darkMode 
                     📍 {item.chantier_location || 'Aucune adresse'}
                   </div>
                   <div style={{ fontSize: '14px', color: colors.textSecondary }}>
-                    📅 {new Date(item.scheduled_date).toLocaleDateString('fr-FR')}
+                    📅 {safeDate(item.scheduled_date)}
                     {item.end_date && item.end_date !== item.scheduled_date && (
-                      <> → {new Date(item.end_date).toLocaleDateString('fr-FR')}</>
+                      <> → {safeDate(item.end_date)}</>
                     )}
                     {' • '}
                     🕐 {item.start_time} - {item.end_time}

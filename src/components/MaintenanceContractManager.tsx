@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
+import { safeDate } from '../utils/safeFormat';
 
 interface Props {
   currentUser: any;
@@ -265,7 +266,7 @@ const MaintenanceContractManager = ({ currentUser, darkMode, onBack }: Props) =>
       await supabase.from('notifications').insert({
         user_id: technicienId,
         title: 'Visite de maintenance planifiée',
-        message: `Vous avez une visite de maintenance chez ${clientName} le ${new Date(dateVisite).toLocaleDateString('fr-FR')}`,
+        message: `Vous avez une visite de maintenance chez ${clientName} le ${safeDate(dateVisite)}`,
         type: 'info',
         read: false,
       });
@@ -525,7 +526,7 @@ const MaintenanceContractManager = ({ currentUser, darkMode, onBack }: Props) =>
                             {contrat.client_name}
                           </p>
                           <p style={{ margin: '0 0 4px', fontSize: '13px', color: colors.textSecondary }}>
-                            {new Date(contrat.date_debut).toLocaleDateString('fr-FR')} → {new Date(contrat.date_fin).toLocaleDateString('fr-FR')}
+                            {safeDate(contrat.date_debut)} → {safeDate(contrat.date_fin)}
                           </p>
                           <p style={{ margin: '0 0 4px', fontSize: '13px', color: colors.textSecondary }}>
                             Fréquence: {FREQUENCES.find((f) => f.value === contrat.frequence_visite)?.label || contrat.frequence_visite}
@@ -642,7 +643,7 @@ const MaintenanceContractManager = ({ currentUser, darkMode, onBack }: Props) =>
                             {visite.contrat?.client_name || 'Client inconnu'}
                           </p>
                           <p style={{ margin: '0 0 2px', fontSize: '13px', color: colors.textSecondary }}>
-                            {new Date(visite.date_visite).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                            {safeDate(visite.date_visite)}
                           </p>
                           <p style={{ margin: 0, fontSize: '12px', color: visite.technicien ? colors.success : colors.warning }}>
                             {visite.technicien ? `Technicien: ${visite.technicien.name}` : 'Aucun technicien assigné'}
@@ -697,7 +698,7 @@ const MaintenanceContractManager = ({ currentUser, darkMode, onBack }: Props) =>
                           {visite.contrat?.client_name || 'Client'}
                         </p>
                         <p style={{ margin: 0, fontSize: '12px', color: colors.textSecondary }}>
-                          {new Date(visite.date_visite).toLocaleDateString('fr-FR')} · {visite.statut}
+                          {safeDate(visite.date_visite)} · {visite.statut}
                           {visite.technicien ? ` · ${visite.technicien.name}` : ''}
                         </p>
                       </div>
@@ -1095,7 +1096,7 @@ const MaintenanceContractManager = ({ currentUser, darkMode, onBack }: Props) =>
                   Gérer la visite
                 </h2>
                 <p style={{ margin: 0, fontSize: '13px', color: colors.textSecondary }}>
-                  {selectedVisite.contrat?.client_name} · {new Date(selectedVisite.date_visite).toLocaleDateString('fr-FR')}
+                  {selectedVisite.contrat?.client_name} · {safeDate(selectedVisite.date_visite)}
                 </p>
               </div>
               <button

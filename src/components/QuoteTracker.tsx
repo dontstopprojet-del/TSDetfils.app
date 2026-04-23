@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { safeLocale } from '../utils/safeFormat';
 
 interface QuoteTrackerProps {
   darkMode?: boolean;
@@ -569,7 +570,7 @@ const QuoteTracker: React.FC<QuoteTrackerProps> = ({
                     {t.estimatedPrice}
                   </div>
                   <div style={{ fontSize: '20px', fontWeight: '700', color: '#10b981' }}>
-                    {quoteDetails.estimated_price.toLocaleString()} GNF
+                    {safeLocale(quoteDetails.estimated_price)} GNF
                   </div>
                 </div>
               )}

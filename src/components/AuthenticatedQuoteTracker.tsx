@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import AppointmentBooking from './AppointmentBooking';
+import { safeFixed, safeLocale } from '../utils/safeFormat';
 
 interface AuthenticatedQuoteTrackerProps {
   darkMode?: boolean;
@@ -459,7 +460,7 @@ const AuthenticatedQuoteTracker: React.FC<AuthenticatedQuoteTrackerProps> = ({
                   fontSize: '13px',
                   color: darkMode ? '#94a3b8' : '#64748b',
                 }}>
-                  {t.coordinates}: {selectedQuote.location_coordinates.lat.toFixed(4)}, {selectedQuote.location_coordinates.lng.toFixed(4)}
+                  {t.coordinates}: {safeFixed(selectedQuote?.location_coordinates?.lat, 4)}, {safeFixed(selectedQuote?.location_coordinates?.lng, 4)}
                 </div>
               </div>
             )}
@@ -565,7 +566,7 @@ const AuthenticatedQuoteTracker: React.FC<AuthenticatedQuoteTrackerProps> = ({
                 {t.estimatedPrice}
               </div>
               <div style={{ fontSize: '36px', fontWeight: '800' }}>
-                {selectedQuote.estimated_price.toLocaleString()} GNF
+                {safeLocale(selectedQuote.estimated_price)} GNF
               </div>
               {selectedQuote.estimated_duration && (
                 <div style={{ fontSize: '14px', marginTop: '8px', opacity: 0.95 }}>

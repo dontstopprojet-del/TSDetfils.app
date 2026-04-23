@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
+import { safeFixed, safeDate } from '../../utils/safeFormat';
 
 interface Props {
   currentUser: any;
@@ -145,7 +146,7 @@ Généré le ${new Date().toLocaleDateString('fr-FR')}
       <div style={{ margin: '0 20px 20px', background: `linear-gradient(135deg, #0e7490, #0891b2)`, borderRadius: 16, padding: '20px 24px', color: '#fff' }}>
         <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 4 }}>Bonjour, {currentUser?.name}</div>
         <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 2 }}>{fmtGNF(totalGNFMois)}</div>
-        <div style={{ fontSize: 13, opacity: 0.8 }}>Gagné ce mois ({totalHeuresMois.toFixed(1)} heures)</div>
+        <div style={{ fontSize: 13, opacity: 0.8 }}>Gagné ce mois ({safeFixed(totalHeuresMois, 1)} heures)</div>
       </div>
 
       {/* Filters */}
@@ -185,7 +186,7 @@ Généré le ${new Date().toLocaleDateString('fr-FR')}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
                         <div style={{ fontWeight: 600, color: colors.text, fontSize: 14 }}>
-                          {new Date(h.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                          {safeDate(h.date)}
                         </div>
                         <div style={{ color: colors.textSub, fontSize: 13, marginTop: 2 }}>
                           {h.nombre_heures} h • {fmtGNF(h.tarif_horaire_gnf)}/h
@@ -203,7 +204,7 @@ Généré le ${new Date().toLocaleDateString('fr-FR')}
 
                 {/* Total row */}
                 <div style={{ background: darkMode ? '#0f172a' : '#f0fdf4', borderRadius: 12, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', fontWeight: 700, marginTop: 4 }}>
-                  <span style={{ color: colors.text }}>Total ({totalHeuresMois.toFixed(1)} h)</span>
+                  <span style={{ color: colors.text }}>Total ({safeFixed(totalHeuresMois, 1)} h)</span>
                   <span style={{ color: colors.success }}>{fmtGNF(totalGNFMois)}</span>
                 </div>
               </div>

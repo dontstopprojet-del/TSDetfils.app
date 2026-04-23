@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { safeFixed } from '../utils/safeFormat';
 
 interface ProfitabilityDashboardProps {
   darkMode: boolean;
@@ -471,7 +472,7 @@ const ProfitabilityDashboard = ({ darkMode, lang, onClose }: ProfitabilityDashbo
           {summaryCard(t.totalRevenue, `${formatMoney(summaryStats.totalRevenue)} ${t.currency}`, C.primary, darkMode ? 'rgba(8,145,178,0.15)' : 'rgba(8,145,178,0.1)', '💰')}
           {summaryCard(t.totalExpenses, `${formatMoney(summaryStats.totalCost)} ${t.currency}`, C.warning, C.warningBg, '📉')}
           {summaryCard(t.totalProfit, `${formatMoney(summaryStats.totalProfit)} ${t.currency}`, getProfitColor(summaryStats.totalProfit), getProfitBg(summaryStats.totalProfit), '📊')}
-          {summaryCard(t.profitMargin, `${summaryStats.margin.toFixed(1)}%`, summaryStats.margin >= 0 ? C.success : C.danger, summaryStats.margin >= 0 ? C.successBg : C.dangerBg, '📈')}
+          {summaryCard(t.profitMargin, `${safeFixed(summaryStats.margin, 1)}%`, summaryStats.margin >= 0 ? C.success : C.danger, summaryStats.margin >= 0 ? C.successBg : C.dangerBg, '📈')}
         </div>
 
         <div style={{
@@ -686,7 +687,7 @@ const ProfitabilityDashboard = ({ darkMode, lang, onClose }: ProfitabilityDashbo
                       }}>
                         {formatMoney(ts.profit)} {t.currency}
                       </div>
-                      <div style={{ color: C.textSecondary, fontSize: '12px' }}>{t.margin}: {margin.toFixed(1)}%</div>
+                      <div style={{ color: C.textSecondary, fontSize: '12px' }}>{t.margin}: {safeFixed(margin, 1)}%</div>
                     </div>
                   </div>
                   <div style={{
@@ -755,7 +756,7 @@ const ProfitabilityDashboard = ({ darkMode, lang, onClose }: ProfitabilityDashbo
                       }}>
                         {formatMoney(ms.profit)} {t.currency}
                       </div>
-                      <div style={{ color: C.textSecondary, fontSize: '12px' }}>{t.margin}: {margin.toFixed(1)}%</div>
+                      <div style={{ color: C.textSecondary, fontSize: '12px' }}>{t.margin}: {safeFixed(margin, 1)}%</div>
                     </div>
                   </div>
                   <div style={{

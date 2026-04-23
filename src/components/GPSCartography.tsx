@@ -4,6 +4,7 @@ import L from 'leaflet';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import { safeNumber, safeText, safeFixed, safeDate } from '../utils/safeFormat';
 
 interface GPSCartographyProps {
   lang: string;
@@ -81,6 +82,21 @@ interface City {
   population: number;
 }
 
+function coordsOk(lat: number, lng: number): boolean {
+  return Number.isFinite(lat) && Number.isFinite(lng) && lat !== 0 && lng !== 0;
+}
+
+function norm(row: any): { lat: number; lng: number } {
+  return {
+    lat: safeNumber(row.lat ?? row.latitude),
+    lng: safeNumber(row.lng ?? row.longitude),
+  };
+}
+
+function fmtPop(v: unknown): string {
+  return safeNumber(v).toLocaleString();
+}
+
 const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
   const [locations, setLocations] = useState<UserLocation[]>([]);
   const [regions, setRegions] = useState<Region[]>([]);
@@ -102,22 +118,22 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
   const markersRef = useRef<L.Marker[]>([]);
 
   const t = lang === 'fr' ? {
-    title: 'Carte Détaillée de la Guinée',
+    title: 'Carte Detaillee de la Guinee',
     close: 'Fermer',
     loading: 'Chargement...',
-    noData: 'Aucune donnée GPS disponible',
+    noData: 'Aucune donnee GPS disponible',
     technician: 'Technicien',
-    lastUpdate: 'Dernière mise à jour',
+    lastUpdate: 'Derniere mise a jour',
     allUsers: 'Tous les utilisateurs',
     position: 'Position',
     admin: 'Administrateur',
     office: 'Bureau',
     client: 'Client',
-    legend: 'Légende',
+    legend: 'Legende',
     search: 'Rechercher un lieu...',
     viewLevel: 'Niveau de vue',
-    regions: 'Régions',
-    prefectures: 'Préfectures',
+    regions: 'Regions',
+    prefectures: 'Prefectures',
     cities: 'Villes',
     communes: 'Communes',
     districts: 'Districts/Quartiers',
@@ -126,17 +142,17 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
     area: 'Superficie',
     capital: 'Capitale',
     stats: 'Statistiques',
-    totalRegions: 'Total Régions',
-    totalPrefectures: 'Total Préfectures',
+    totalRegions: 'Total Regions',
+    totalPrefectures: 'Total Prefectures',
     totalCities: 'Total Villes',
     totalCommunes: 'Total Communes',
     totalDistricts: 'Total Districts',
-    allRegions: 'Toutes les régions',
-    allPrefectures: 'Toutes les préfectures',
+    allRegions: 'Toutes les regions',
+    allPrefectures: 'Toutes les prefectures',
     allCities: 'Toutes les villes',
     allCommunes: 'Toutes les communes',
-    filterByRegion: 'Filtrer par région',
-    filterByPrefecture: 'Filtrer par préfecture',
+    filterByRegion: 'Filtrer par region',
+    filterByPrefecture: 'Filtrer par prefecture',
     filterByCommune: 'Filtrer par commune',
     urban: 'Urbaine',
     rural: 'Rurale',
@@ -144,8 +160,8 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
     district: 'District',
     sector: 'Secteur',
     nationale_capital: 'Capitale Nationale',
-    regional_capital: 'Capitale Régionale',
-    prefecture_capital: 'Chef-lieu de Préfecture',
+    regional_capital: 'Capitale Regionale',
+    prefecture_capital: 'Chef-lieu de Prefecture',
     city: 'Ville',
     village: 'Village'
   } : {
@@ -212,45 +228,28 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
   };
 
   useEffect(() => {
-    console.log('[GPSCartography] useEffect mounted');
     let mounted = true;
     let mapInitialized = false;
 
     const initializeMap = async () => {
-      console.log("VERSION NEW MAP FIX");
       if (!mounted || mapInitialized) return;
 
-      console.log('[GPSCartography] Début initialisation carte');
-
       if (!mapContainerRef.current) {
-        console.error('[GPSCartography] ERREUR: mapContainerRef.current est NULL');
         setTimeout(initializeMap, 300);
         return;
       }
 
-      if (mapRef.current) {
-        console.log('[GPSCartography] Carte déjà initialisée');
-        return;
-      }
+      if (mapRef.current) return;
 
       const container = mapContainerRef.current;
       const rect = container.getBoundingClientRect();
-      console.log('[GPSCartography] Container rect:', {
-        width: rect.width,
-        height: rect.height,
-        top: rect.top,
-        left: rect.left
-      });
 
       if (rect.width === 0 || rect.height === 0) {
-        console.error('[GPSCartography] Container a une dimension NULLE, retry...');
         setTimeout(initializeMap, 300);
         return;
       }
 
       try {
-        console.log('[GPSCartography] ========== CREATION CARTE ==========');
-
         delete (L.Icon.Default.prototype as any)._getIconUrl;
         L.Icon.Default.mergeOptions({
           iconRetinaUrl: markerIcon2x,
@@ -265,7 +264,6 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
           attributionControl: true
         });
 
-        console.log('[GPSCartography] ✓ Instance carte créée');
         mapRef.current = map;
         mapInitialized = true;
 
@@ -274,17 +272,7 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
           maxZoom: 19
         });
 
-        tileLayer.on('tileerror', (e: any) => {
-          console.error('[GPSCartography] Tile load error:', e.tile?.src, e.error);
-        });
-
         tileLayer.addTo(map);
-
-        setTimeout(() => {
-  map.invalidateSize();
-  console.log('FIX map size');
-}, 300);
-        console.log('[GPSCartography] Tuiles OSM ajoutees');
 
         const doInvalidate = () => {
           if (mapRef.current && mounted) {
@@ -302,14 +290,10 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       }
     };
 
-    const loadData = async () => {
-      await fetchAllData();
-    };
-
     requestAnimationFrame(() => {
       setTimeout(() => {
         initializeMap();
-        loadData();
+        fetchAllData();
       }, 300);
     });
 
@@ -321,7 +305,6 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       .subscribe();
 
     return () => {
-      console.log('[GPSCartography] Cleanup...');
       mounted = false;
       subscription.unsubscribe();
       if (mapRef.current) {
@@ -336,7 +319,6 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
   }, [locations, regions, prefectures, cities, communes, districts, viewLevel, selectedUser, selectedRegion, selectedPrefecture, selectedCommune, searchQuery]);
 
   const fetchAllData = async () => {
-    console.log('[GPSCartography] Début du chargement des données...');
     setLoading(true);
     await Promise.all([
       fetchLocations(),
@@ -347,39 +329,36 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
       fetchDistricts()
     ]);
     setLoading(false);
-    console.log('[GPSCartography] Données chargées avec succès');
   };
 
   const fetchLocations = async () => {
     try {
-      const { data: locationsData, error } = await supabase
+      const { data, error } = await supabase
         .from('user_locations')
-        .select(`
-          *,
-          app_users!inner(name, role)
-        `)
+        .select('*, app_users!inner(name, role)')
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
 
-      const mappedLocations = locationsData?.map((loc: any) => ({
-        id: loc.id,
-        user_id: loc.user_id,
-        lat: parseFloat(loc.latitude),
-        lng: parseFloat(loc.longitude),
-        updated_at: loc.updated_at,
-        user_name: loc.app_users.name,
-        user_role: loc.app_users.role
-      })) || [];
+      const mapped: UserLocation[] = [];
+      const seen = new Set<string>();
 
-      const uniqueUsers = new Map();
-      mappedLocations.forEach((loc: UserLocation) => {
-        if (!uniqueUsers.has(loc.user_id)) {
-          uniqueUsers.set(loc.user_id, loc);
-        }
-      });
-
-      setLocations(Array.from(uniqueUsers.values()));
+      for (const row of data || []) {
+        if (seen.has(row.user_id)) continue;
+        seen.add(row.user_id);
+        const c = norm(row);
+        if (!coordsOk(c.lat, c.lng)) continue;
+        mapped.push({
+          id: row.id,
+          user_id: row.user_id,
+          lat: c.lat,
+          lng: c.lng,
+          updated_at: row.updated_at ?? '',
+          user_name: safeText(row.app_users?.name, 'Utilisateur'),
+          user_role: safeText(row.app_users?.role, 'unknown'),
+        });
+      }
+      setLocations(mapped);
     } catch (error) {
       console.error('Error fetching locations:', error);
     }
@@ -392,19 +371,25 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
         .select('*')
         .order('name');
 
-      if (error) {
-        console.error('Error fetching regions:', error);
-        return;
-      }
+      if (error || !data) return;
 
-      if (data) {
-        console.log('Régions chargées:', data.length);
-        setRegions(data.map((r: any) => ({
-          ...r,
-          latitude: parseFloat(r.latitude),
-          longitude: parseFloat(r.longitude)
-        })));
+      const mapped: Region[] = [];
+      for (const r of data) {
+        const c = norm(r);
+        if (!coordsOk(c.lat, c.lng)) continue;
+        mapped.push({
+          id: r.id,
+          code: safeText(r.code, ''),
+          name: safeText(r.name, 'Sans nom'),
+          name_fr: safeText(r.name_fr ?? r.name, 'Sans nom'),
+          capital: safeText(r.capital, 'N/A'),
+          lat: c.lat,
+          lng: c.lng,
+          population: safeNumber(r.population),
+          area_km2: safeNumber(r.area_km2),
+        });
       }
+      setRegions(mapped);
     } catch (error) {
       console.error('Error fetching regions:', error);
     }
@@ -417,19 +402,26 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
         .select('*')
         .order('name');
 
-      if (error) {
-        console.error('Error fetching prefectures:', error);
-        return;
-      }
+      if (error || !data) return;
 
-      if (data) {
-        console.log('Préfectures chargées:', data.length);
-        setPrefectures(data.map((p: any) => ({
-          ...p,
-          latitude: parseFloat(p.latitude),
-          longitude: parseFloat(p.longitude)
-        })));
+      const mapped: Prefecture[] = [];
+      for (const p of data) {
+        const c = norm(p);
+        if (!coordsOk(c.lat, c.lng)) continue;
+        mapped.push({
+          id: p.id,
+          region_id: p.region_id ?? '',
+          code: safeText(p.code, ''),
+          name: safeText(p.name, 'Sans nom'),
+          name_fr: safeText(p.name_fr ?? p.name, 'Sans nom'),
+          lat: c.lat,
+          lng: c.lng,
+          population: safeNumber(p.population),
+          area_km2: safeNumber(p.area_km2),
+          is_capital: p.is_capital === true,
+        });
       }
+      setPrefectures(mapped);
     } catch (error) {
       console.error('Error fetching prefectures:', error);
     }
@@ -442,19 +434,26 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
         .select('*')
         .order('name');
 
-      if (error) {
-        console.error('Error fetching cities:', error);
-        return;
-      }
+      if (error || !data) return;
 
-      if (data) {
-        console.log('Villes chargées:', data.length);
-        setCities(data.map((c: any) => ({
-          ...c,
-          latitude: parseFloat(c.latitude),
-          longitude: parseFloat(c.longitude)
-        })));
+      const mapped: City[] = [];
+      for (const ci of data) {
+        const c = norm(ci);
+        if (!coordsOk(c.lat, c.lng)) continue;
+        mapped.push({
+          id: ci.id,
+          prefecture_id: ci.prefecture_id ?? '',
+          commune_id: ci.commune_id ?? null,
+          code: safeText(ci.code, ''),
+          name: safeText(ci.name, 'Sans nom'),
+          name_fr: safeText(ci.name_fr ?? ci.name, 'Sans nom'),
+          type: safeText(ci.type, 'ville'),
+          lat: c.lat,
+          lng: c.lng,
+          population: safeNumber(ci.population),
+        });
       }
+      setCities(mapped);
     } catch (error) {
       console.error('Error fetching cities:', error);
     }
@@ -467,13 +466,24 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
         .select('*')
         .order('name');
 
-      if (!error && data) {
-        setCommunes(data.map((c: any) => ({
-          ...c,
-          latitude: parseFloat(c.latitude),
-          longitude: parseFloat(c.longitude)
-        })));
+      if (error || !data) return;
+
+      const mapped: Commune[] = [];
+      for (const cm of data) {
+        const c = norm(cm);
+        if (!coordsOk(c.lat, c.lng)) continue;
+        mapped.push({
+          id: cm.id,
+          prefecture_id: cm.prefecture_id ?? '',
+          code: safeText(cm.code, ''),
+          name: safeText(cm.name, 'Sans nom'),
+          type: safeText(cm.type, 'rurale'),
+          lat: c.lat,
+          lng: c.lng,
+          population: safeNumber(cm.population),
+        });
       }
+      setCommunes(mapped);
     } catch (error) {
       console.error('Error fetching communes:', error);
     }
@@ -486,41 +496,45 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
         .select('*')
         .order('name');
 
-      if (!error && data) {
-        setDistricts(data.map((d: any) => ({
-          ...d,
-          latitude: parseFloat(d.latitude),
-          longitude: parseFloat(d.longitude)
-        })));
+      if (error || !data) return;
+
+      const mapped: District[] = [];
+      for (const d of data) {
+        const c = norm(d);
+        if (!coordsOk(c.lat, c.lng)) continue;
+        mapped.push({
+          id: d.id,
+          commune_id: d.commune_id ?? '',
+          code: safeText(d.code, ''),
+          name: safeText(d.name, 'Sans nom'),
+          type: safeText(d.type, 'quartier'),
+          lat: c.lat,
+          lng: c.lng,
+          population: safeNumber(d.population),
+        });
       }
+      setDistricts(mapped);
     } catch (error) {
       console.error('Error fetching districts:', error);
     }
   };
 
   const updateMapMarkers = () => {
-    if (!mapRef.current) {
-      console.log('[GPSCartography] Carte non initialisée, impossible d\'ajouter des marqueurs');
-      return;
-    }
-
-    console.log('[GPSCartography] Mise à jour des marqueurs...');
-    console.log('[GPSCartography] Niveau de vue:', viewLevel);
-    console.log('[GPSCartography] Nombre de régions:', regions.length);
-    console.log('[GPSCartography] Nombre de préfectures:', prefectures.length);
-    console.log('[GPSCartography] Nombre de villes:', cities.length);
-    console.log('[GPSCartography] Nombre d\'utilisateurs:', locations.length);
+    if (!mapRef.current) return;
 
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
-    console.log('[GPSCartography] Anciens marqueurs supprimés');
+
+    const map = mapRef.current;
 
     if (viewLevel === 'users') {
-      const filteredLocs = selectedUser
+      const filtered = selectedUser
         ? locations.filter(loc => loc.user_id === selectedUser)
         : locations;
 
-      filteredLocs.forEach((location) => {
+      filtered.forEach((location) => {
+        if (!coordsOk(location.lat, location.lng)) return;
+
         const roleColor = location.user_role === 'technician' ? colors.primary :
                          location.user_role === 'admin' ? colors.danger :
                          location.user_role === 'office' || location.user_role === 'office_employee' ? colors.warning :
@@ -528,389 +542,225 @@ const GPSCartography = ({ lang, darkMode, onClose }: GPSCartographyProps) => {
 
         const customIcon = L.divIcon({
           className: 'custom-marker',
-          html: `<div style="
-            background: ${roleColor};
-            width: 32px;
-            height: 32px;
-            border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
-            border: 3px solid white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          ">
-            <span style="transform: rotate(45deg); color: white; font-size: 16px;">📍</span>
-          </div>`,
+          html: `<div style="background:${roleColor};width:32px;height:32px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><span style="transform:rotate(45deg);color:white;font-size:16px;">&#x1F4CD;</span></div>`,
           iconSize: [32, 32],
           iconAnchor: [16, 32],
           popupAnchor: [0, -32]
         });
 
-     const marker = L.marker([location.lat, location.lng], { icon: customIcon })
-  .addTo(mapRef.current!)
-  .bindPopup(`
-    <div style="font-family: system-ui; min-width: 250px;">
-      <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 700; color: #2C3E50;">
-        ${location.user_name}
-      </h3>
-      <div style="font-size: 12px; color: #64748B; margin-bottom: 4px;">
-        <strong>${t.position}:</strong><br/>
-        ${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}
-      </div>
-      <div style="font-size: 12px; color: #64748B; margin-bottom: 4px;">
-        <strong>${t.lastUpdate}:</strong><br/>
-        ${formatDate(location.updated_at)}
-      </div>
-    </div>
-  `);
+        const marker = L.marker([location.lat, location.lng], { icon: customIcon })
+          .addTo(map)
+          .bindPopup(`<div style="font-family:system-ui;min-width:250px;"><h3 style="margin:0 0 8px 0;font-size:16px;font-weight:700;color:#2C3E50;">${safeText(location.user_name)}</h3><div style="font-size:12px;color:#64748B;margin-bottom:4px;"><strong>${t.position}:</strong><br/>${safeFixed(location.lat, 6)}, ${safeFixed(location.lng, 6)}</div><div style="font-size:12px;color:#64748B;margin-bottom:4px;"><strong>${t.lastUpdate}:</strong><br/>${safeDate(location.updated_at, lang)}</div></div>`);
 
-markersRef.current.push(marker);
+        markersRef.current.push(marker);
       });
 
-      if (filteredLocs.length > 0) {
-       const bounds = L.latLngBounds(filteredLocs.map(loc => [loc.lat, loc.lng]));
-        mapRef.current.fitBounds(bounds, { padding: [50, 50] });
-      }
+      fitBoundsForItems(filtered, map);
+
     } else if (viewLevel === 'regions') {
       let filtered = regions;
       if (searchQuery) {
+        const q = searchQuery.toLowerCase();
         filtered = filtered.filter(r =>
-          r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          r.name_fr.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          r.capital.toLowerCase().includes(searchQuery.toLowerCase())
+          (r.name || '').toLowerCase().includes(q) ||
+          (r.name_fr || '').toLowerCase().includes(q) ||
+          (r.capital || '').toLowerCase().includes(q)
         );
       }
 
-      console.log('[GPSCartography] Ajout de', filtered.length, 'marqueurs de régions');
-      filtered.forEach((region, index) => {
-       console.log(`[GPSCartography] Région ${index + 1} :`, region.name_fr, 'à', region.lat, region.lng);
+      filtered.forEach((region) => {
+        if (!coordsOk(region.lat, region.lng)) return;
+
         const customIcon = L.divIcon({
           className: 'custom-marker',
-          html: `<div style="
-            background: ${colors.danger};
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            border: 4px solid white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-          ">🏛️</div>`,
+          html: `<div style="background:${colors.danger};width:48px;height:48px;border-radius:50%;border:4px solid white;box-shadow:0 4px 12px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:24px;">&#x1F3DB;&#xFE0F;</div>`,
           iconSize: [48, 48],
           iconAnchor: [24, 48],
           popupAnchor: [0, -48]
         });
 
-      const marker = L.marker([region.lat, region.lng], { icon: customIcon })
-  .addTo(mapRef.current!)
-  .bindPopup(`
-    <div style="font-family: system-ui; min-width: 250px;">
-      <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 700; color: #DC2626;">
-        ${region.name_fr}
-      </h3>
-      <div style="font-size: 13px; color: #64748B; margin-bottom: 4px;">
-        <strong>${t.capital}:</strong> ${region.capital}
-      </div>
-      <div style="font-size: 13px; color: #64748B; margin-bottom: 4px;">
-        <strong>${t.population}:</strong> ${region.population.toLocaleString()} habitants
-      </div>
-      <div style="font-size: 13px; color: #64748B; margin-bottom: 4px;">
-        <strong>${t.area}:</strong> ${region.area_km2.toLocaleString()} km²
-      </div>
-      <div style="font-size: 12px; color: #94A3B8; margin-top: 8px;">
-        ${region.lat.toFixed(4)}, ${region.lng.toFixed(4)}
-      </div>
-    </div>
-  `);
+        const marker = L.marker([region.lat, region.lng], { icon: customIcon })
+          .addTo(map)
+          .bindPopup(`<div style="font-family:system-ui;min-width:250px;"><h3 style="margin:0 0 8px 0;font-size:18px;font-weight:700;color:#DC2626;">${safeText(region.name_fr)}</h3><div style="font-size:13px;color:#64748B;margin-bottom:4px;"><strong>${t.capital}:</strong> ${safeText(region.capital)}</div><div style="font-size:13px;color:#64748B;margin-bottom:4px;"><strong>${t.population}:</strong> ${fmtPop(region.population)} habitants</div><div style="font-size:13px;color:#64748B;margin-bottom:4px;"><strong>${t.area}:</strong> ${fmtPop(region.area_km2)} km&sup2;</div><div style="font-size:12px;color:#94A3B8;margin-top:8px;">${safeFixed(region.lat, 4)}, ${safeFixed(region.lng, 4)}</div></div>`);
 
-markersRef.current.push(marker);
-console.log('[GPSCartography] Marqueur ajouté pour', region.name_fr);
+        markersRef.current.push(marker);
       });
 
-      console.log('[GPSCartography] Total marqueurs de régions ajoutés:', markersRef.current.length);
+      fitBoundsForItems(filtered, map);
 
-      if (filtered.length > 0) {
-       const bounds = L.latLngBounds(filtered.map(r => [r.lat, r.lng]));
-mapRef.current.fitBounds(bounds, { padding: [50, 50] });
-        console.log('[GPSCartography] Carte centrée sur les régions');
-      }
     } else if (viewLevel === 'prefectures') {
       let filtered = prefectures;
       if (selectedRegion) {
         filtered = filtered.filter(p => p.region_id === selectedRegion);
       }
       if (searchQuery) {
+        const q = searchQuery.toLowerCase();
         filtered = filtered.filter(p =>
-          p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.name_fr.toLowerCase().includes(searchQuery.toLowerCase())
+          (p.name || '').toLowerCase().includes(q) ||
+          (p.name_fr || '').toLowerCase().includes(q)
         );
       }
 
-      filtered.forEach((prefecture) => {
+      filtered.forEach((pref) => {
+        if (!coordsOk(pref.lat, pref.lng)) return;
+
         const customIcon = L.divIcon({
           className: 'custom-marker',
-          html: `<div style="
-            background: ${prefecture.is_capital ? colors.danger : colors.warning};
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-          ">${prefecture.is_capital ? '⭐' : '🏙️'}</div>`,
+          html: `<div style="background:${pref.is_capital ? colors.danger : colors.warning};width:36px;height:36px;border-radius:50%;border:3px solid white;box-shadow:0 3px 10px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;font-size:18px;">${pref.is_capital ? '&#x2B50;' : '&#x1F3D9;&#xFE0F;'}</div>`,
           iconSize: [36, 36],
           iconAnchor: [18, 36],
           popupAnchor: [0, -36]
         });
 
-       const marker = L.marker([prefecture.lat, prefecture.lng], { icon: customIcon })
-  .addTo(mapRef.current!)
-  .bindPopup(`
-    <div style="font-family: system-ui; min-width: 220px;">
-      <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 700; color: #F59E0B;">
-        ${prefecture.name_fr}
-      </h3>
-      ${prefecture.is_capital ? '<div style="font-size: 11px; color: #DC2626; font-weight: 600; margin-bottom: 4px;">⭐ Capitale préfectorale</div>' : ''}
-      <div style="font-size: 12px; color: #64748B; margin-bottom: 4px;">
-        <strong>${t.population}:</strong> ${prefecture.population.toLocaleString()}
-      </div>
-      <div style="font-size: 12px; color: #64748B; margin-bottom: 4px;">
-        <strong>${t.area}:</strong> ${prefecture.area_km2.toLocaleString()} km²
-      </div>
-      <div style="font-size: 11px; color: #94A3B8; margin-top: 6px;">
-        ${prefecture.lat.toFixed(4)}, ${prefecture.lng.toFixed(4)}
-      </div>
-    </div>
-  `);
+        const capitalLabel = pref.is_capital ? '<div style="font-size:11px;color:#DC2626;font-weight:600;margin-bottom:4px;">&#x2B50; Capitale prefectorale</div>' : '';
 
-markersRef.current.push(marker);
+        const marker = L.marker([pref.lat, pref.lng], { icon: customIcon })
+          .addTo(map)
+          .bindPopup(`<div style="font-family:system-ui;min-width:220px;"><h3 style="margin:0 0 8px 0;font-size:16px;font-weight:700;color:#F59E0B;">${safeText(pref.name_fr)}</h3>${capitalLabel}<div style="font-size:12px;color:#64748B;margin-bottom:4px;"><strong>${t.population}:</strong> ${fmtPop(pref.population)}</div><div style="font-size:12px;color:#64748B;margin-bottom:4px;"><strong>${t.area}:</strong> ${fmtPop(pref.area_km2)} km&sup2;</div><div style="font-size:11px;color:#94A3B8;margin-top:6px;">${safeFixed(pref.lat, 4)}, ${safeFixed(pref.lng, 4)}</div></div>`);
+
+        markersRef.current.push(marker);
       });
 
-      if (filtered.length > 0) {
-     const bounds = L.latLngBounds(filtered.map(p => [p.lat, p.lng]));
-mapRef.current.fitBounds(bounds, { padding: [50, 50] });
-      }
+      fitBoundsForItems(filtered, map);
+
     } else if (viewLevel === 'cities') {
       let filtered = cities;
       if (selectedPrefecture) {
         filtered = filtered.filter(c => c.prefecture_id === selectedPrefecture);
       }
       if (searchQuery) {
+        const q = searchQuery.toLowerCase();
         filtered = filtered.filter(c =>
-          c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.name_fr.toLowerCase().includes(searchQuery.toLowerCase())
+          (c.name || '').toLowerCase().includes(q) ||
+          (c.name_fr || '').toLowerCase().includes(q)
         );
       }
 
+      const getCityIcon = (type: string) => {
+        if (type === 'capitale_nationale') return '&#x1F3DB;&#xFE0F;';
+        if (type === 'capitale_regionale') return '&#x2B50;';
+        if (type === 'capitale_prefecture') return '&#x1F3D9;&#xFE0F;';
+        if (type === 'ville') return '&#x1F3D8;&#xFE0F;';
+        return '&#x1F3E0;';
+      };
+
+      const getCityColor = (type: string) => {
+        if (type === 'capitale_nationale') return '#DC2626';
+        if (type === 'capitale_regionale') return '#EF4444';
+        if (type === 'capitale_prefecture') return '#F59E0B';
+        if (type === 'ville') return '#10B981';
+        return '#64748B';
+      };
+
+      const getCitySize = (type: string) => {
+        if (type === 'capitale_nationale') return 44;
+        if (type === 'capitale_regionale') return 38;
+        if (type === 'capitale_prefecture') return 32;
+        if (type === 'ville') return 26;
+        return 22;
+      };
+
+      const getCityTypeLabel = (type: string) => {
+        if (type === 'capitale_nationale') return t.nationale_capital;
+        if (type === 'capitale_regionale') return t.regional_capital;
+        if (type === 'capitale_prefecture') return t.prefecture_capital;
+        if (type === 'ville') return t.city;
+        return t.village;
+      };
+
       filtered.forEach((city) => {
-        const getCityIcon = (type: string) => {
-          if (type === 'capitale_nationale') return '🏛️';
-          if (type === 'capitale_regionale') return '⭐';
-          if (type === 'capitale_prefecture') return '🏙️';
-          if (type === 'ville') return '🏘️';
-          return '🏠';
-        };
-
-        const getCityColor = (type: string) => {
-          if (type === 'capitale_nationale') return '#DC2626';
-          if (type === 'capitale_regionale') return '#EF4444';
-          if (type === 'capitale_prefecture') return '#F59E0B';
-          if (type === 'ville') return '#10B981';
-          return '#64748B';
-        };
-
-        const getCitySize = (type: string) => {
-          if (type === 'capitale_nationale') return 44;
-          if (type === 'capitale_regionale') return 38;
-          if (type === 'capitale_prefecture') return 32;
-          if (type === 'ville') return 26;
-          return 22;
-        };
+        if (!coordsOk(city.lat, city.lng)) return;
 
         const size = getCitySize(city.type);
+        const color = getCityColor(city.type);
 
         const customIcon = L.divIcon({
           className: 'custom-marker',
-          html: `<div style="
-            background: ${getCityColor(city.type)};
-            width: ${size}px;
-            height: ${size}px;
-            border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: ${size * 0.5}px;
-          ">${getCityIcon(city.type)}</div>`,
+          html: `<div style="background:${color};width:${size}px;height:${size}px;border-radius:50%;border:3px solid white;box-shadow:0 3px 10px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;font-size:${size * 0.5}px;">${getCityIcon(city.type)}</div>`,
           iconSize: [size, size],
           iconAnchor: [size / 2, size],
           popupAnchor: [0, -size]
         });
 
-        const getCityTypeLabel = (type: string) => {
-          if (type === 'capitale_nationale') return t.nationale_capital;
-          if (type === 'capitale_regionale') return t.regional_capital;
-          if (type === 'capitale_prefecture') return t.prefecture_capital;
-          if (type === 'ville') return t.city;
-          return t.village;
-        };
+        const marker = L.marker([city.lat, city.lng], { icon: customIcon })
+          .addTo(map)
+          .bindPopup(`<div style="font-family:system-ui;min-width:220px;"><h3 style="margin:0 0 8px 0;font-size:16px;font-weight:700;color:${color};">${safeText(city.name_fr)}</h3><div style="font-size:11px;color:${color};font-weight:600;margin-bottom:6px;">${getCityIcon(city.type)} ${getCityTypeLabel(city.type)}</div><div style="font-size:12px;color:#64748B;margin-bottom:4px;"><strong>${t.population}:</strong> ${fmtPop(city.population)} habitants</div><div style="font-size:11px;color:#94A3B8;margin-top:6px;">${safeFixed(city.lat, 4)}, ${safeFixed(city.lng, 4)}</div></div>`);
 
-     const marker = L.marker([city.lat, city.lng], { icon: customIcon })
-  .addTo(mapRef.current!)
-  .bindPopup(`
-    <div style="font-family: system-ui; min-width: 220px;">
-      <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 700; color: ${getCityColor(city.type)};">
-        ${city.name_fr}
-      </h3>
-      <div style="font-size: 11px; color: ${getCityColor(city.type)}; font-weight: 600; margin-bottom: 6px;">
-        ${getCityIcon(city.type)} ${getCityTypeLabel(city.type)}
-      </div>
-      <div style="font-size: 12px; color: #64748B; margin-bottom: 4px;">
-        <strong>${t.population}:</strong> ${city.population.toLocaleString()} habitants
-      </div>
-      <div style="font-size: 11px; color: #94A3B8; margin-top: 6px;">
-        ${city.lat.toFixed(4)}, ${city.lng.toFixed(4)}
-      </div>
-    </div>
-  `);
-
-markersRef.current.push(marker);
+        markersRef.current.push(marker);
       });
 
-      if (filtered.length > 0) {
-     const bounds = L.latLngBounds(filtered.map(c => [c.lat, c.lng]));
-mapRef.current.fitBounds(bounds, { padding: [50, 50] });
-      }
+      fitBoundsForItems(filtered, map);
+
     } else if (viewLevel === 'communes') {
       let filtered = communes;
       if (selectedPrefecture) {
         filtered = filtered.filter(c => c.prefecture_id === selectedPrefecture);
       }
       if (searchQuery) {
-        filtered = filtered.filter(c =>
-          c.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        const q = searchQuery.toLowerCase();
+        filtered = filtered.filter(c => (c.name || '').toLowerCase().includes(q));
       }
 
       filtered.forEach((commune) => {
+        if (!coordsOk(commune.lat, commune.lng)) return;
+
         const customIcon = L.divIcon({
           className: 'custom-marker',
-          html: `<div style="
-            background: ${commune.type === 'urbaine' ? colors.success : colors.purple};
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-          ">${commune.type === 'urbaine' ? '🏢' : '🌾'}</div>`,
+          html: `<div style="background:${commune.type === 'urbaine' ? colors.success : colors.purple};width:28px;height:28px;border-radius:50%;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:14px;">${commune.type === 'urbaine' ? '&#x1F3E2;' : '&#x1F33E;'}</div>`,
           iconSize: [28, 28],
           iconAnchor: [14, 28],
           popupAnchor: [0, -28]
         });
 
-     const marker = L.marker([commune.lat, commune.lng], { icon: customIcon })
-  .addTo(mapRef.current!)
-  .bindPopup(`
-    <div style="font-family: system-ui; min-width: 200px;">
-      <h3 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 700; color: ${commune.type === 'urbaine' ? '#10B981' : '#8B5CF6'};">
-        ${commune.name}
-      </h3>
-      <div style="font-size: 11px; color: #64748B; margin-bottom: 4px;">
-        <strong>Type:</strong> ${commune.type === 'urbaine' ? t.urban : t.rural}
-      </div>
-      <div style="font-size: 11px; color: #64748B; margin-bottom: 4px;">
-        <strong>${t.population}:</strong> ${commune.population.toLocaleString()}
-      </div>
-      <div style="font-size: 10px; color: #94A3B8; margin-top: 6px;">
-        ${commune.lat.toFixed(4)}, ${commune.lng.toFixed(4)}
-      </div>
-    </div>
-  `);
+        const marker = L.marker([commune.lat, commune.lng], { icon: customIcon })
+          .addTo(map)
+          .bindPopup(`<div style="font-family:system-ui;min-width:200px;"><h3 style="margin:0 0 6px 0;font-size:15px;font-weight:700;color:${commune.type === 'urbaine' ? '#10B981' : '#8B5CF6'};">${safeText(commune.name)}</h3><div style="font-size:11px;color:#64748B;margin-bottom:4px;"><strong>Type:</strong> ${commune.type === 'urbaine' ? t.urban : t.rural}</div><div style="font-size:11px;color:#64748B;margin-bottom:4px;"><strong>${t.population}:</strong> ${fmtPop(commune.population)}</div><div style="font-size:10px;color:#94A3B8;margin-top:6px;">${safeFixed(commune.lat, 4)}, ${safeFixed(commune.lng, 4)}</div></div>`);
 
-markersRef.current.push(marker);
+        markersRef.current.push(marker);
       });
 
-      if (filtered.length > 0) {
-     const bounds = L.latLngBounds(filtered.map(c => [c.lat, c.lng]));
-mapRef.current.fitBounds(bounds, { padding: [50, 50] });
-      }
+      fitBoundsForItems(filtered, map);
+
     } else if (viewLevel === 'districts') {
       let filtered = districts;
       if (selectedCommune) {
         filtered = filtered.filter(d => d.commune_id === selectedCommune);
       }
       if (searchQuery) {
-        filtered = filtered.filter(d =>
-          d.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        const q = searchQuery.toLowerCase();
+        filtered = filtered.filter(d => (d.name || '').toLowerCase().includes(q));
       }
 
       filtered.forEach((district) => {
+        if (!coordsOk(district.lat, district.lng)) return;
+
         const customIcon = L.divIcon({
           className: 'custom-marker',
-          html: `<div style="
-            background: ${colors.pink};
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-          ">📍</div>`,
+          html: `<div style="background:${colors.pink};width:20px;height:20px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;font-size:10px;">&#x1F4CD;</div>`,
           iconSize: [20, 20],
           iconAnchor: [10, 20],
           popupAnchor: [0, -20]
         });
 
-   const marker = L.marker([district.lat, district.lng], { icon: customIcon })
-  .addTo(mapRef.current!)
-  .bindPopup(`
-    <div style="font-family: system-ui; min-width: 180px;">
-      <h3 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 700; color: #EC4899;">
-        ${district.name}
-      </h3>
-      <div style="font-size: 11px; color: #64748B; margin-bottom: 4px;">
-        <strong>Type:</strong> ${district.type === 'quartier' ? t.quarter : district.type === 'district' ? t.district : district.type}
-      </div>
-      <div style="font-size: 11px; color: #64748B; margin-bottom: 4px;">
-        <strong>${t.population}:</strong> ${district.population.toLocaleString()}
-      </div>
-      <div style="font-size: 10px; color: #94A3B8; margin-top: 6px;">
-        ${district.lat.toFixed(5)}, ${district.lng.toFixed(5)}
-      </div>
-    </div>
-  `);
+        const typeLabel = district.type === 'quartier' ? t.quarter : district.type === 'district' ? t.district : safeText(district.type);
 
-markersRef.current.push(marker);
+        const marker = L.marker([district.lat, district.lng], { icon: customIcon })
+          .addTo(map)
+          .bindPopup(`<div style="font-family:system-ui;min-width:180px;"><h3 style="margin:0 0 6px 0;font-size:14px;font-weight:700;color:#EC4899;">${safeText(district.name)}</h3><div style="font-size:11px;color:#64748B;margin-bottom:4px;"><strong>Type:</strong> ${typeLabel}</div><div style="font-size:11px;color:#64748B;margin-bottom:4px;"><strong>${t.population}:</strong> ${fmtPop(district.population)}</div><div style="font-size:10px;color:#94A3B8;margin-top:6px;">${safeFixed(district.lat, 5)}, ${safeFixed(district.lng, 5)}</div></div>`);
+
+        markersRef.current.push(marker);
       });
 
-      if (filtered.length > 0) {
-     const bounds = L.latLngBounds(filtered.map(d => [d.lat, d.lng]));
-mapRef.current.fitBounds(bounds, { padding: [50, 50] });
-      }
+      fitBoundsForItems(filtered, map);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat(lang === 'fr' ? 'fr-FR' : 'en-US', {
-      dateStyle: 'short',
-      timeStyle: 'short'
-    }).format(date);
+  const fitBoundsForItems = (items: { lat: number; lng: number }[], map: L.Map) => {
+    const valid = items.filter(i => coordsOk(i.lat, i.lng));
+    if (valid.length > 0) {
+      const bounds = L.latLngBounds(valid.map(i => [i.lat, i.lng] as L.LatLngTuple));
+      map.fitBounds(bounds, { padding: [50, 50] });
+    }
   };
 
   return (
@@ -962,110 +812,40 @@ mapRef.current.fitBounds(bounds, { padding: [50, 50] });
           gap: '12px',
           marginBottom: '16px'
         }}>
-          <button
-            onClick={() => setViewLevel('regions')}
-            style={{
-              padding: '12px',
-              background: viewLevel === 'regions' ? colors.danger : colors.card,
-              color: viewLevel === 'regions' ? '#FFF' : colors.text,
-              border: `1px solid ${colors.border}`,
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontSize: '13px',
-              transition: 'all 0.2s'
-            }}
-          >
-            🏛️ {t.regions} ({regions.length})
-          </button>
-          <button
-            onClick={() => setViewLevel('prefectures')}
-            style={{
-              padding: '12px',
-              background: viewLevel === 'prefectures' ? colors.warning : colors.card,
-              color: viewLevel === 'prefectures' ? '#FFF' : colors.text,
-              border: `1px solid ${colors.border}`,
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontSize: '13px',
-              transition: 'all 0.2s'
-            }}
-          >
-            🏙️ {t.prefectures} ({prefectures.length})
-          </button>
-          <button
-            onClick={() => setViewLevel('cities')}
-            style={{
-              padding: '12px',
-              background: viewLevel === 'cities' ? '#10B981' : colors.card,
-              color: viewLevel === 'cities' ? '#FFF' : colors.text,
-              border: `1px solid ${colors.border}`,
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontSize: '13px',
-              transition: 'all 0.2s'
-            }}
-          >
-            🏘️ {t.cities} ({cities.length})
-          </button>
-          <button
-            onClick={() => setViewLevel('communes')}
-            style={{
-              padding: '12px',
-              background: viewLevel === 'communes' ? colors.success : colors.card,
-              color: viewLevel === 'communes' ? '#FFF' : colors.text,
-              border: `1px solid ${colors.border}`,
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontSize: '13px',
-              transition: 'all 0.2s'
-            }}
-          >
-            🏢 {t.communes} ({communes.length})
-          </button>
-          <button
-            onClick={() => setViewLevel('districts')}
-            style={{
-              padding: '12px',
-              background: viewLevel === 'districts' ? colors.pink : colors.card,
-              color: viewLevel === 'districts' ? '#FFF' : colors.text,
-              border: `1px solid ${colors.border}`,
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontSize: '13px',
-              transition: 'all 0.2s'
-            }}
-          >
-            📍 {t.districts} ({districts.length})
-          </button>
-          <button
-            onClick={() => setViewLevel('users')}
-            style={{
-              padding: '12px',
-              background: viewLevel === 'users' ? colors.primary : colors.card,
-              color: viewLevel === 'users' ? '#FFF' : colors.text,
-              border: `1px solid ${colors.border}`,
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontSize: '13px',
-              transition: 'all 0.2s'
-            }}
-          >
-            👥 {t.users} ({locations.length})
-          </button>
+          {([
+            { key: 'regions' as const, icon: '\u{1F3DB}\uFE0F', color: colors.danger, count: regions.length },
+            { key: 'prefectures' as const, icon: '\u{1F3D9}\uFE0F', color: colors.warning, count: prefectures.length },
+            { key: 'cities' as const, icon: '\u{1F3D8}\uFE0F', color: '#10B981', count: cities.length },
+            { key: 'communes' as const, icon: '\u{1F3E2}', color: colors.success, count: communes.length },
+            { key: 'districts' as const, icon: '\u{1F4CD}', color: colors.pink, count: districts.length },
+            { key: 'users' as const, icon: '\u{1F465}', color: colors.primary, count: locations.length },
+          ]).map(btn => (
+            <button
+              key={btn.key}
+              onClick={() => setViewLevel(btn.key)}
+              style={{
+                padding: '12px',
+                background: viewLevel === btn.key ? btn.color : colors.card,
+                color: viewLevel === btn.key ? '#FFF' : colors.text,
+                border: `1px solid ${colors.border}`,
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: '600',
+                fontSize: '13px',
+                transition: 'all 0.2s'
+              }}
+            >
+              {btn.icon} {t[btn.key]} ({btn.count})
+            </button>
+          ))}
         </div>
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: viewLevel === 'prefectures' && selectedRegion ? 'repeat(2, 1fr)' :
-                                viewLevel === 'cities' && selectedPrefecture ? 'repeat(2, 1fr)' :
-                                viewLevel === 'communes' && selectedPrefecture ? 'repeat(2, 1fr)' :
-                                viewLevel === 'districts' && selectedCommune ? 'repeat(2, 1fr)' : '1fr',
+          gridTemplateColumns: (viewLevel === 'prefectures' && selectedRegion) ||
+                                (viewLevel === 'cities' && selectedPrefecture) ||
+                                (viewLevel === 'communes' && selectedPrefecture) ||
+                                (viewLevel === 'districts' && selectedCommune) ? 'repeat(2, 1fr)' : '1fr',
           gap: '12px',
           marginBottom: '16px'
         }}>
@@ -1077,15 +857,7 @@ mapRef.current.fitBounds(bounds, { padding: [50, 50] });
                 setSelectedPrefecture(null);
                 setSelectedCommune(null);
               }}
-              style={{
-                padding: '12px',
-                borderRadius: '8px',
-                border: `1px solid ${colors.border}`,
-                background: colors.card,
-                color: colors.text,
-                fontSize: '13px',
-                fontWeight: '500'
-              }}
+              style={{ padding: '12px', borderRadius: '8px', border: `1px solid ${colors.border}`, background: colors.card, color: colors.text, fontSize: '13px', fontWeight: '500' }}
             >
               <option value="">{t.allRegions}</option>
               {regions.map(r => (
@@ -1097,18 +869,8 @@ mapRef.current.fitBounds(bounds, { padding: [50, 50] });
           {viewLevel === 'cities' && (
             <select
               value={selectedPrefecture || ''}
-              onChange={(e) => {
-                setSelectedPrefecture(e.target.value || null);
-              }}
-              style={{
-                padding: '12px',
-                borderRadius: '8px',
-                border: `1px solid ${colors.border}`,
-                background: colors.card,
-                color: colors.text,
-                fontSize: '13px',
-                fontWeight: '500'
-              }}
+              onChange={(e) => setSelectedPrefecture(e.target.value || null)}
+              style={{ padding: '12px', borderRadius: '8px', border: `1px solid ${colors.border}`, background: colors.card, color: colors.text, fontSize: '13px', fontWeight: '500' }}
             >
               <option value="">{t.allPrefectures}</option>
               {prefectures.map(p => (
@@ -1124,15 +886,7 @@ mapRef.current.fitBounds(bounds, { padding: [50, 50] });
                 setSelectedPrefecture(e.target.value || null);
                 setSelectedCommune(null);
               }}
-              style={{
-                padding: '12px',
-                borderRadius: '8px',
-                border: `1px solid ${colors.border}`,
-                background: colors.card,
-                color: colors.text,
-                fontSize: '13px',
-                fontWeight: '500'
-              }}
+              style={{ padding: '12px', borderRadius: '8px', border: `1px solid ${colors.border}`, background: colors.card, color: colors.text, fontSize: '13px', fontWeight: '500' }}
             >
               <option value="">{t.allPrefectures}</option>
               {prefectures.map(p => (
@@ -1145,15 +899,7 @@ mapRef.current.fitBounds(bounds, { padding: [50, 50] });
             <select
               value={selectedCommune || ''}
               onChange={(e) => setSelectedCommune(e.target.value || null)}
-              style={{
-                padding: '12px',
-                borderRadius: '8px',
-                border: `1px solid ${colors.border}`,
-                background: colors.card,
-                color: colors.text,
-                fontSize: '13px',
-                fontWeight: '500'
-              }}
+              style={{ padding: '12px', borderRadius: '8px', border: `1px solid ${colors.border}`, background: colors.card, color: colors.text, fontSize: '13px', fontWeight: '500' }}
             >
               <option value="">{t.allCommunes}</option>
               {communes.map(c => (
@@ -1166,15 +912,7 @@ mapRef.current.fitBounds(bounds, { padding: [50, 50] });
             <select
               value={selectedUser || ''}
               onChange={(e) => setSelectedUser(e.target.value || null)}
-              style={{
-                padding: '12px',
-                borderRadius: '8px',
-                border: `1px solid ${colors.border}`,
-                background: colors.card,
-                color: colors.text,
-                fontSize: '13px',
-                fontWeight: '500'
-              }}
+              style={{ padding: '12px', borderRadius: '8px', border: `1px solid ${colors.border}`, background: colors.card, color: colors.text, fontSize: '13px', fontWeight: '500' }}
             >
               <option value="">{t.allUsers}</option>
               {locations.map(loc => (
@@ -1271,45 +1009,34 @@ mapRef.current.fitBounds(bounds, { padding: [50, 50] });
                 alignItems: 'center',
                 marginBottom: '12px'
               }}>
-                <div style={{
-                  fontSize: '14px',
-                  fontWeight: '700',
-                  color: colors.text
-                }}>
+                <div style={{ fontSize: '14px', fontWeight: '700', color: colors.text }}>
                   {t.stats}
                 </div>
                 <button
                   onClick={() => setShowStats(false)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    fontSize: '16px',
-                    cursor: 'pointer',
-                    color: colors.textSecondary,
-                    padding: '0'
-                  }}
+                  style={{ background: 'transparent', border: 'none', fontSize: '16px', cursor: 'pointer', color: colors.textSecondary, padding: '0' }}
                 >
-                  ✕
+                  &#x2715;
                 </button>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div style={{ fontSize: '12px', color: colors.textSecondary }}>
-                  <strong style={{ color: colors.danger }}>🏛️ {t.totalRegions}:</strong> {regions.length}
+                  <strong style={{ color: colors.danger }}>{t.totalRegions}:</strong> {regions.length}
                 </div>
                 <div style={{ fontSize: '12px', color: colors.textSecondary }}>
-                  <strong style={{ color: colors.warning }}>🏙️ {t.totalPrefectures}:</strong> {prefectures.length}
+                  <strong style={{ color: colors.warning }}>{t.totalPrefectures}:</strong> {prefectures.length}
                 </div>
                 <div style={{ fontSize: '12px', color: colors.textSecondary }}>
-                  <strong style={{ color: '#10B981' }}>🏘️ {t.totalCities}:</strong> {cities.length}
+                  <strong style={{ color: '#10B981' }}>{t.totalCities}:</strong> {cities.length}
                 </div>
                 <div style={{ fontSize: '12px', color: colors.textSecondary }}>
-                  <strong style={{ color: colors.success }}>🏢 {t.totalCommunes}:</strong> {communes.length}
+                  <strong style={{ color: colors.success }}>{t.totalCommunes}:</strong> {communes.length}
                 </div>
                 <div style={{ fontSize: '12px', color: colors.textSecondary }}>
-                  <strong style={{ color: colors.pink }}>📍 {t.totalDistricts}:</strong> {districts.length}
+                  <strong style={{ color: colors.pink }}>{t.totalDistricts}:</strong> {districts.length}
                 </div>
                 <div style={{ fontSize: '12px', color: colors.textSecondary }}>
-                  <strong style={{ color: colors.primary }}>👥 {t.users}:</strong> {locations.length}
+                  <strong style={{ color: colors.primary }}>{t.users}:</strong> {locations.length}
                 </div>
               </div>
             </div>
@@ -1332,7 +1059,7 @@ mapRef.current.fitBounds(bounds, { padding: [50, 50] });
                 zIndex: 1100
               }}
             >
-              📊
+              &#x1F4CA;
             </button>
           )}
         </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { safeFixed } from '../utils/safeFormat';
 
 interface RealtimeUserMonitorProps {
   darkMode?: boolean;
@@ -299,7 +300,7 @@ const RealtimeUserMonitor: React.FC<RealtimeUserMonitorProps> = ({ darkMode = fa
                     Heures
                   </div>
                   <div style={{ fontSize: '16px', fontWeight: 'bold', color: colors.text }}>
-                    {user.current_hours.toFixed(2)}h
+                    {safeFixed(user.current_hours, 2)}h
                   </div>
                 </div>
 
@@ -308,7 +309,7 @@ const RealtimeUserMonitor: React.FC<RealtimeUserMonitorProps> = ({ darkMode = fa
                     Kilomètres
                   </div>
                   <div style={{ fontSize: '16px', fontWeight: 'bold', color: colors.text }}>
-                    {user.current_kilometers.toFixed(2)} km
+                    {safeFixed(user.current_kilometers, 2)} km
                   </div>
                 </div>
 

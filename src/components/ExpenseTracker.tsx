@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useRealtimeExpenses, useRealtimeProjects } from '../hooks/useRealtimeSync';
+import { safeLocale, safeDate } from '../utils/safeFormat';
 
 interface Expense {
   id: string;
@@ -383,11 +384,11 @@ const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({ userId, userRole, darkM
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>
         <div style={{ background: C.card, padding: '18px', borderRadius: '16px', border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: '13px', color: C.textSecondary, marginBottom: '6px' }}>Total Depenses</div>
-          <div style={{ fontSize: '22px', fontWeight: 'bold', color: C.text }}>{totalExpenses.toLocaleString()} GNF</div>
+          <div style={{ fontSize: '22px', fontWeight: 'bold', color: C.text }}>{safeLocale(totalExpenses)} GNF</div>
         </div>
         <div style={{ background: C.card, padding: '18px', borderRadius: '16px', border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: '13px', color: C.textSecondary, marginBottom: '6px' }}>Approuvees</div>
-          <div style={{ fontSize: '22px', fontWeight: 'bold', color: C.success }}>{approvedTotal.toLocaleString()} GNF</div>
+          <div style={{ fontSize: '22px', fontWeight: 'bold', color: C.success }}>{safeLocale(approvedTotal)} GNF</div>
         </div>
         <div style={{ background: C.card, padding: '18px', borderRadius: '16px', border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: '13px', color: C.textSecondary, marginBottom: '6px' }}>En Attente</div>
@@ -615,7 +616,7 @@ const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({ userId, userRole, darkM
                       </div>
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: '12px' }}>
-                      <div style={{ fontSize: '18px', fontWeight: '800', color: C.primary }}>{Number(expense.amount).toLocaleString()}</div>
+                      <div style={{ fontSize: '18px', fontWeight: '800', color: C.primary }}>{safeLocale(Number(expense.amount))}</div>
                       <div style={{ fontSize: '11px', color: C.textSecondary }}>GNF</div>
                     </div>
                   </div>
@@ -625,7 +626,7 @@ const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({ userId, userRole, darkM
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <span style={{ fontSize: '12px', color: C.textSecondary }}>
-                        {new Date(expense.expense_date).toLocaleDateString('fr-FR')}
+                        {safeDate(expense.expense_date)}
                       </span>
                       {expense.receipt_url && (
                         <button
@@ -724,7 +725,7 @@ const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({ userId, userRole, darkM
               style={{ maxWidth: '100%', maxHeight: '70vh', borderRadius: '12px', objectFit: 'contain' }}
             />
             <div style={{ marginTop: '12px', fontSize: '13px', color: C.textSecondary }}>
-              {Number(selectedExpense.amount).toLocaleString()} GNF - {new Date(selectedExpense.expense_date).toLocaleDateString('fr-FR')}
+              {safeLocale(Number(selectedExpense.amount))} GNF - {safeDate(selectedExpense.expense_date)}
             </div>
           </div>
         </div>

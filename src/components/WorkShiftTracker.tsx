@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
+import { safeFixed } from '../utils/safeFormat';
 
 interface WorkShiftTrackerProps {
   userId: string;
@@ -576,7 +577,7 @@ const WorkShiftTracker: React.FC<WorkShiftTrackerProps> = ({ userId, userRole, d
       setShiftModal({
         type: 'info',
         title: 'Journee terminee',
-        message: `Heures: ${hoursWorked.toFixed(2)}h\nKilometres: ${kmDriven.toFixed(2)}km`,
+        message: `Heures: ${safeFixed(hoursWorked, 2)}h\nKilometres: ${safeFixed(kmDriven, 2)}km`,
         confirmColor: colors.success,
         onConfirm: () => setShiftModal(null),
       });
@@ -592,7 +593,7 @@ const WorkShiftTracker: React.FC<WorkShiftTrackerProps> = ({ userId, userRole, d
     setShiftModal({
       type: 'confirm',
       title: 'Fin de journee',
-      message: `Voulez-vous terminer votre journee?\n\nHeures: ${(userStatus?.current_hours || 0).toFixed(2)}h\nKilometres: ${(userStatus?.current_kilometers || 0).toFixed(2)}km`,
+      message: `Voulez-vous terminer votre journee?\n\nHeures: ${safeFixed(userStatus?.current_hours, 2)}h\nKilometres: ${safeFixed(userStatus?.current_kilometers, 2)}km`,
       confirmLabel: 'Terminer la journee',
       confirmColor: colors.danger,
       onConfirm: () => { setShiftModal(null); executeEndDay(); },
@@ -679,7 +680,7 @@ const WorkShiftTracker: React.FC<WorkShiftTrackerProps> = ({ userId, userRole, d
         }}>
           <div style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '8px' }}>Heures</div>
           <div style={{ fontSize: '18px', fontWeight: 'bold', color: colors.text }}>
-            {userStatus.current_hours.toFixed(2)}h
+            {safeFixed(userStatus.current_hours, 2)}h
           </div>
         </div>
 
@@ -691,7 +692,7 @@ const WorkShiftTracker: React.FC<WorkShiftTrackerProps> = ({ userId, userRole, d
         }}>
           <div style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '8px' }}>Kilomètres</div>
           <div style={{ fontSize: '18px', fontWeight: 'bold', color: colors.text }}>
-            {userStatus.current_kilometers.toFixed(2)} km
+            {safeFixed(userStatus.current_kilometers, 2)} km
           </div>
         </div>
       </div>

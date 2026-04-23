@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
+import { safeFixed, safeDate } from '../../utils/safeFormat';
 
 interface Props {
   darkMode: boolean;
@@ -615,7 +616,7 @@ Genere le ${new Date().toLocaleDateString('fr-FR')}
                     {filteredHeures.map(h => (
                       <tr key={h.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
                         <td style={{ padding: '10px 12px', color: colors.text, fontWeight: 600 }}>{h.employe?.name || '—'}</td>
-                        <td style={{ padding: '10px 12px', color: colors.text }}>{new Date(h.date).toLocaleDateString('fr-FR')}</td>
+                        <td style={{ padding: '10px 12px', color: colors.text }}>{safeDate(h.date)}</td>
                         <td style={{ padding: '10px 12px', color: colors.text }}>{h.nombre_heures} h</td>
                         <td style={{ padding: '10px 12px', color: colors.text }}>{fmtGNF(h.tarif_horaire_gnf)}</td>
                         <td style={{ padding: '10px 12px', color: colors.success, fontWeight: 600 }}>{fmtGNF(h.total_gnf)}</td>
@@ -626,7 +627,7 @@ Genere le ${new Date().toLocaleDateString('fr-FR')}
                   <tfoot>
                     <tr style={{ background: darkMode ? '#0f172a' : '#f8fafc' }}>
                       <td colSpan={2} style={{ padding: '10px 12px', fontWeight: 700, color: colors.text }}>TOTAL</td>
-                      <td style={{ padding: '10px 12px', fontWeight: 700, color: colors.text }}>{filteredHeures.reduce((s, h) => s + h.nombre_heures, 0).toFixed(2)} h</td>
+                      <td style={{ padding: '10px 12px', fontWeight: 700, color: colors.text }}>{safeFixed(filteredHeures.reduce((s, h) => s + h.nombre_heures, 0), 2)} h</td>
                       <td></td>
                       <td style={{ padding: '10px 12px', fontWeight: 700, color: colors.success }}>{fmtGNF(filteredHeures.reduce((s, h) => s + h.total_gnf, 0))}</td>
                       <td></td>

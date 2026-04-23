@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { safeLocale, safeDate } from '../utils/safeFormat';
 
 interface Quote {
   id: string;
@@ -831,7 +832,7 @@ const QuoteManagement: React.FC<QuoteManagementProps> = ({ darkMode }) => {
                       Prix estimé
                     </h4>
                     <div style={{ fontSize: '24px', fontWeight: '700', color: '#10b981' }}>
-                      {selectedQuote.estimated_price.toLocaleString()} GNF
+                      {safeLocale(selectedQuote.estimated_price)} GNF
                     </div>
                   </div>
                 )}
@@ -891,7 +892,7 @@ const QuoteManagement: React.FC<QuoteManagementProps> = ({ darkMode }) => {
                     fontSize: '14px',
                     color: darkMode ? '#d1fae5' : '#047857',
                   }}>
-                    <strong>Date prévue:</strong> {new Date(selectedQuote.chantier.scheduled_date).toLocaleDateString('fr-FR')}
+                    <strong>Date prévue:</strong> {safeDate(selectedQuote.chantier.scheduled_date)}
                   </div>
                 )}
                 <div style={{

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
+import { safeFixed } from '../utils/safeFormat';
 
 interface WorkShiftManagerProps {
   userId: string;
@@ -418,7 +419,7 @@ export default function WorkShiftManager({ userId, colors }: WorkShiftManagerPro
           <div style={{ fontSize: '28px', marginBottom: '8px' }}>🚗</div>
           <div style={{ fontSize: '11px', color: colors.textSecondary, marginBottom: '4px', textTransform: 'uppercase', fontWeight: '600', letterSpacing: '0.5px' }}>Distance</div>
           <div style={{ fontSize: '15px', fontWeight: 'bold', color: colors.text }}>
-            {shift.totalKm.toFixed(2)} km
+            {safeFixed(shift.totalKm, 2)} km
           </div>
         </div>
 
@@ -584,7 +585,7 @@ export default function WorkShiftManager({ userId, colors }: WorkShiftManagerPro
               color: colors.success,
               fontWeight: 'bold'
             }}>
-              ✅ Journée Terminée - {shift.totalKm.toFixed(2)} km parcourus
+              ✅ Journée Terminée - {safeFixed(shift.totalKm, 2)} km parcourus
             </div>
             <button
               onClick={handleRestartDay}

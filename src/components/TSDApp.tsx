@@ -9,6 +9,7 @@ import DailyNotes from './DailyNotes';
 import AlertsManager from './AlertsManager';
 import AccountManager from './AccountManager';
 import { getClientText } from '../utils/clientTexts';
+import { safeFixed, safeDate } from '../utils/safeFormat';
 import AdminSettings from './AdminSettings';
 import LoginScreen from './LoginScreen';
 import OfficeApp from './OfficeApp';
@@ -186,7 +187,7 @@ const ClientChantierDetail = ({ chantier, onClose, colors: C, lang }: { chantier
                       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'6px'}}>
                         <span style={{fontSize:'13px',fontWeight:'700',color:C.text}}>{act.description}</span>
                         <span style={{fontSize:'10px',color:C.textSecondary,whiteSpace:'nowrap',marginLeft:'8px'}}>
-                          {new Date(act.created_at).toLocaleDateString(lang==='fr'?'fr-FR':'en-US',{day:'2-digit',month:'short'})} {new Date(act.created_at).toLocaleTimeString(lang==='fr'?'fr-FR':'en-US',{hour:'2-digit',minute:'2-digit'})}
+                          {safeDate(act.created_at, lang==='fr'?'fr':'en')}
                         </span>
                       </div>
                       {act.app_users?.name && <p style={{margin:0,fontSize:'12px',color:C.textSecondary}}>👷 {act.app_users.name}</p>}
@@ -235,7 +236,7 @@ const ClientChantierDetail = ({ chantier, onClose, colors: C, lang }: { chantier
                 <div key={note.id} style={{background:C.light,borderRadius:'12px',padding:'14px',marginBottom:'10px'}}>
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}}>
                     <span style={{fontSize:'11px',color:C.textSecondary}}>
-                      {new Date(note.created_at).toLocaleDateString(lang==='fr'?'fr-FR':'en-US',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+                      {safeDate(note.created_at, lang==='fr'?'fr':'en')}
                     </span>
                     <span style={{background:`${C.secondary}20`,color:C.secondary,padding:'3px 10px',borderRadius:'20px',fontSize:'11px',fontWeight:'700'}}>{note.progress_percentage}%</span>
                   </div>
@@ -729,7 +730,7 @@ const TSDApp = ({ onBackToVisitor, isPasswordRecovery }: { onBackToVisitor?: () 
         type: n.type,
         title: n.title,
         message: n.message,
-        date: new Date(n.created_at).toLocaleDateString(),
+        date: safeDate(n.created_at),
         read: n.is_read
       }));
       setNotifications(formattedData);
@@ -1405,8 +1406,8 @@ const TSDApp = ({ onBackToVisitor, isPasswordRecovery }: { onBackToVisitor?: () 
 
                   {c.started_at && (
                     <p style={{margin:'0 0 10px',fontSize:'11px',color:C.textSecondary}}>
-                      {lang==='fr'?'Demarre le':'Started on'} {new Date(c.started_at).toLocaleDateString(lang==='fr'?'fr-FR':'en-US',{day:'2-digit',month:'short',year:'numeric'})}
-                      {c.completed_at && (<> • {lang==='fr'?'Termine le':'Completed on'} {new Date(c.completed_at).toLocaleDateString(lang==='fr'?'fr-FR':'en-US',{day:'2-digit',month:'short',year:'numeric'})}</>)}
+                      {lang==='fr'?'Demarre le':'Started on'} {safeDate(c.started_at, lang==='fr'?'fr':'en')}
+                      {c.completed_at && (<> • {lang==='fr'?'Termine le':'Completed on'} {safeDate(c.completed_at, lang==='fr'?'fr':'en')}</>)}
                     </p>
                   )}
 
@@ -2047,8 +2048,8 @@ const TSDApp = ({ onBackToVisitor, isPasswordRecovery }: { onBackToVisitor?: () 
                   <label style={{fontSize:'13px',color:C.text,cursor:'pointer'}}>{t.readAndAccept}</label>
                 </div>
                 <div style={{display:'flex',gap:'10px'}}>
-                  <button onClick={()=>{setLegalSignature({signed:false,date:new Date().toLocaleDateString(lang==='fr'?'fr-FR':'en-US'),accepted:false});setLegalScreen('menu')}} style={{flex:1,background:'#FEE2E2',color:C.danger,border:`2px solid ${C.danger}`,padding:'14px',borderRadius:'12px',fontWeight:'600',cursor:'pointer'}}>✗ {t.decline}</button>
-                  <button disabled={!termsAccepted} onClick={()=>{setLegalSignature({signed:true,date:new Date().toLocaleDateString(lang==='fr'?'fr-FR':'en-US'),accepted:true});setShowSuccess(true);setTimeout(()=>setShowSuccess(false),2000)}} style={{flex:1,background:termsAccepted?`linear-gradient(90deg,${C.success},#27ae60)`:'#ccc',color:'#FFF',border:'none',padding:'14px',borderRadius:'12px',fontWeight:'600',cursor:termsAccepted?'pointer':'not-allowed'}}>✓ {t.approve}</button>
+                  <button onClick={()=>{setLegalSignature({signed:false,date:safeDate(new Date(), lang==='fr'?'fr':'en'),accepted:false});setLegalScreen('menu')}} style={{flex:1,background:'#FEE2E2',color:C.danger,border:`2px solid ${C.danger}`,padding:'14px',borderRadius:'12px',fontWeight:'600',cursor:'pointer'}}>✗ {t.decline}</button>
+                  <button disabled={!termsAccepted} onClick={()=>{setLegalSignature({signed:true,date:safeDate(new Date(), lang==='fr'?'fr':'en'),accepted:true});setShowSuccess(true);setTimeout(()=>setShowSuccess(false),2000)}} style={{flex:1,background:termsAccepted?`linear-gradient(90deg,${C.success},#27ae60)`:'#ccc',color:'#FFF',border:'none',padding:'14px',borderRadius:'12px',fontWeight:'600',cursor:termsAccepted?'pointer':'not-allowed'}}>✓ {t.approve}</button>
                 </div>
               </div>
             )}
@@ -2304,7 +2305,7 @@ const TSDApp = ({ onBackToVisitor, isPasswordRecovery }: { onBackToVisitor?: () 
             ) : (
               <div style={{display:'flex',gap:'10px'}}>
                 <button onClick={()=>setLegalScreen('menu')} style={{flex:1,background:'#FEE2E2',color:C.danger,border:`2px solid ${C.danger}`,padding:'14px',borderRadius:'12px',fontWeight:'600',cursor:'pointer'}}>✗ {lang==='fr'?'Refuser':'Decline'}</button>
-                <button onClick={()=>{setLegalClauses({...legalClauses,confidentiality:{signed:true,date:new Date().toLocaleDateString(lang==='fr'?'fr-FR':'en-US')}});setShowSuccess(true);setTimeout(()=>setShowSuccess(false),2000)}} style={{flex:1,background:`linear-gradient(90deg,${C.success},#27ae60)`,color:'#FFF',border:'none',padding:'14px',borderRadius:'12px',fontWeight:'600',cursor:'pointer'}}>✓ {lang==='fr'?'Approuver':'Approve'}</button>
+                <button onClick={()=>{setLegalClauses({...legalClauses,confidentiality:{signed:true,date:safeDate(new Date(), lang==='fr'?'fr':'en')}});setShowSuccess(true);setTimeout(()=>setShowSuccess(false),2000)}} style={{flex:1,background:`linear-gradient(90deg,${C.success},#27ae60)`,color:'#FFF',border:'none',padding:'14px',borderRadius:'12px',fontWeight:'600',cursor:'pointer'}}>✓ {lang==='fr'?'Approuver':'Approve'}</button>
               </div>
             )}
           </div>
@@ -2333,7 +2334,7 @@ const TSDApp = ({ onBackToVisitor, isPasswordRecovery }: { onBackToVisitor?: () 
             ) : (
               <div style={{display:'flex',gap:'10px'}}>
                 <button onClick={()=>setLegalScreen('menu')} style={{flex:1,background:'#FEE2E2',color:C.danger,border:`2px solid ${C.danger}`,padding:'14px',borderRadius:'12px',fontWeight:'600',cursor:'pointer'}}>✗ {lang==='fr'?'Refuser':'Decline'}</button>
-                <button onClick={()=>{setLegalClauses({...legalClauses,dataprotection:{signed:true,date:new Date().toLocaleDateString(lang==='fr'?'fr-FR':'en-US')}});setShowSuccess(true);setTimeout(()=>setShowSuccess(false),2000)}} style={{flex:1,background:`linear-gradient(90deg,${C.success},#27ae60)`,color:'#FFF',border:'none',padding:'14px',borderRadius:'12px',fontWeight:'600',cursor:'pointer'}}>✓ {lang==='fr'?'Approuver':'Approve'}</button>
+                <button onClick={()=>{setLegalClauses({...legalClauses,dataprotection:{signed:true,date:safeDate(new Date(), lang==='fr'?'fr':'en')}});setShowSuccess(true);setTimeout(()=>setShowSuccess(false),2000)}} style={{flex:1,background:`linear-gradient(90deg,${C.success},#27ae60)`,color:'#FFF',border:'none',padding:'14px',borderRadius:'12px',fontWeight:'600',cursor:'pointer'}}>✓ {lang==='fr'?'Approuver':'Approve'}</button>
               </div>
             )}
           </div>
@@ -2362,7 +2363,7 @@ const TSDApp = ({ onBackToVisitor, isPasswordRecovery }: { onBackToVisitor?: () 
             ) : (
               <div style={{display:'flex',gap:'10px'}}>
                 <button onClick={()=>setLegalScreen('menu')} style={{flex:1,background:'#FEE2E2',color:C.danger,border:`2px solid ${C.danger}`,padding:'14px',borderRadius:'12px',fontWeight:'600',cursor:'pointer'}}>✗ {lang==='fr'?'Refuser':'Decline'}</button>
-                <button onClick={()=>{setLegalClauses({...legalClauses,warranty:{signed:true,date:new Date().toLocaleDateString(lang==='fr'?'fr-FR':'en-US')}});setShowSuccess(true);setTimeout(()=>setShowSuccess(false),2000)}} style={{flex:1,background:`linear-gradient(90deg,${C.success},#27ae60)`,color:'#FFF',border:'none',padding:'14px',borderRadius:'12px',fontWeight:'600',cursor:'pointer'}}>✓ {lang==='fr'?'Approuver':'Approve'}</button>
+                <button onClick={()=>{setLegalClauses({...legalClauses,warranty:{signed:true,date:safeDate(new Date(), lang==='fr'?'fr':'en')}});setShowSuccess(true);setTimeout(()=>setShowSuccess(false),2000)}} style={{flex:1,background:`linear-gradient(90deg,${C.success},#27ae60)`,color:'#FFF',border:'none',padding:'14px',borderRadius:'12px',fontWeight:'600',cursor:'pointer'}}>✓ {lang==='fr'?'Approuver':'Approve'}</button>
               </div>
             )}
           </div>
@@ -2391,7 +2392,7 @@ const TSDApp = ({ onBackToVisitor, isPasswordRecovery }: { onBackToVisitor?: () 
             ) : (
               <div style={{display:'flex',gap:'10px'}}>
                 <button onClick={()=>setLegalScreen('menu')} style={{flex:1,background:'#FEE2E2',color:C.danger,border:`2px solid ${C.danger}`,padding:'14px',borderRadius:'12px',fontWeight:'600',cursor:'pointer'}}>✗ {lang==='fr'?'Refuser':'Decline'}</button>
-                <button onClick={()=>{setLegalClauses({...legalClauses,termination:{signed:true,date:new Date().toLocaleDateString(lang==='fr'?'fr-FR':'en-US')}});setShowSuccess(true);setTimeout(()=>setShowSuccess(false),2000)}} style={{flex:1,background:`linear-gradient(90deg,${C.success},#27ae60)`,color:'#FFF',border:'none',padding:'14px',borderRadius:'12px',fontWeight:'600',cursor:'pointer'}}>✓ {lang==='fr'?'Approuver':'Approve'}</button>
+                <button onClick={()=>{setLegalClauses({...legalClauses,termination:{signed:true,date:safeDate(new Date(), lang==='fr'?'fr':'en')}});setShowSuccess(true);setTimeout(()=>setShowSuccess(false),2000)}} style={{flex:1,background:`linear-gradient(90deg,${C.success},#27ae60)`,color:'#FFF',border:'none',padding:'14px',borderRadius:'12px',fontWeight:'600',cursor:'pointer'}}>✓ {lang==='fr'?'Approuver':'Approve'}</button>
               </div>
             )}
           </div>
@@ -2769,7 +2770,7 @@ const TSDApp = ({ onBackToVisitor, isPasswordRecovery }: { onBackToVisitor?: () 
                   <div style={{flex:1}}>
                     <h4 style={{margin:0,fontSize:'16px',color:C.text}}>{c.titre}</h4>
                     <p style={{margin:'5px 0 0',fontSize:'13px',color:C.textSecondary}}>📍 {c.lieu}</p>
-                    {c.scheduled_date && <p style={{margin:'4px 0 0',fontSize:'12px',color:C.primary,fontWeight:'600'}}>📅 {new Date(c.scheduled_date + 'T00:00:00').toLocaleDateString(lang==='fr'?'fr-FR':'en-US')}{c.heure && c.heure !== ' - ' ? ` • ⏰ ${c.heure}` : ''}</p>}
+                    {c.scheduled_date && <p style={{margin:'4px 0 0',fontSize:'12px',color:C.primary,fontWeight:'600'}}>📅 {safeDate(c.scheduled_date + 'T00:00:00', lang==='fr'?'fr':'en')}{c.heure && c.heure !== ' - ' ? ` • ⏰ ${c.heure}` : ''}</p>}
                   </div>
                   <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:'4px'}}>
                     <span style={{background:`${statusColor}20`,color:statusColor,padding:'4px 10px',borderRadius:'10px',fontSize:'11px',fontWeight:'700'}}>{getStatusLabel(c.statut)}</span>
@@ -4132,7 +4133,7 @@ const TSDApp = ({ onBackToVisitor, isPasswordRecovery }: { onBackToVisitor?: () 
             <h3 style={{margin:'0 0 15px',fontSize:'14px',fontWeight:'bold',color:C.text}}>📊 {lang==='fr'?'Resume':'Summary'}</h3>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px',marginBottom:'10px'}}>
               <div style={{background:C.light,borderRadius:'12px',padding:'12px',textAlign:'center'}}>
-                <p style={{margin:0,fontSize:'20px',fontWeight:'bold',color:C.primary}}>{allTechs.reduce((sum,t)=>sum+t.distance,0).toFixed(1)} km</p>
+                <p style={{margin:0,fontSize:'20px',fontWeight:'bold',color:C.primary}}>{safeFixed(allTechs.reduce((sum,t)=>sum+t.distance,0), 1)} km</p>
                 <p style={{margin:'4px 0 0',fontSize:'10px',color:C.textSecondary}}>{lang==='fr'?'Distance totale':'Total distance'}</p>
               </div>
               <div style={{background:C.light,borderRadius:'12px',padding:'12px',textAlign:'center'}}>

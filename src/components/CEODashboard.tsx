@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { safeLocale, safeDate } from '../utils/safeFormat';
 import RealtimeUserMonitor from './RealtimeUserMonitor';
 import SiteDetailView from './SiteDetailView';
 import { useRealtimeUsers, useRealtimeQuotes, useRealtimeProjects, useRealtimeInvoices } from '../hooks/useRealtimeSync';
@@ -595,7 +596,7 @@ const CEODashboard = ({ currentUser, darkMode, lang, onBack, onNavigate, embedde
                   border: `1px solid ${C.border}`,
                 }}>
                   <div style={{ fontSize: '13px', color: C.textSecondary, marginBottom: '8px', fontWeight: '600' }}>Date de demande</div>
-                  <div style={{ fontSize: '18px', color: C.text, fontWeight: '800' }}>{new Date(selectedPerson.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                  <div style={{ fontSize: '18px', color: C.text, fontWeight: '800' }}>{safeDate(selectedPerson.created_at)}</div>
                 </div>
               </>
             ) : selectedPerson.profiles ? (
@@ -608,7 +609,7 @@ const CEODashboard = ({ currentUser, darkMode, lang, onBack, onNavigate, embedde
                   border: `1px solid ${C.border}`,
                 }}>
                   <div style={{ fontSize: '13px', color: C.textSecondary, marginBottom: '8px', fontWeight: '600' }}>{t.name}</div>
-                  <div style={{ fontSize: '18px', color: C.text, fontWeight: '800' }}>{selectedPerson.profiles.full_name}</div>
+                  <div style={{ fontSize: '18px', color: C.text, fontWeight: '800' }}>{selectedPerson?.profiles?.full_name ?? 'N/A'}</div>
                 </div>
                 <div style={{
                   marginBottom: '20px',
@@ -618,7 +619,7 @@ const CEODashboard = ({ currentUser, darkMode, lang, onBack, onNavigate, embedde
                   border: `1px solid ${C.border}`,
                 }}>
                   <div style={{ fontSize: '13px', color: C.textSecondary, marginBottom: '8px', fontWeight: '600' }}>{t.phone}</div>
-                  <div style={{ fontSize: '18px', color: C.text, fontWeight: '800' }}>{selectedPerson.profiles.phone || '-'}</div>
+                  <div style={{ fontSize: '18px', color: C.text, fontWeight: '800' }}>{selectedPerson?.profiles?.phone || '-'}</div>
                 </div>
               </>
             ) : null}
@@ -681,7 +682,7 @@ const CEODashboard = ({ currentUser, darkMode, lang, onBack, onNavigate, embedde
                 border: `2px solid ${C.primary}`,
               }}>
                 <div style={{ fontSize: '13px', color: C.textSecondary, marginBottom: '8px', fontWeight: '600' }}>{t.revenue}</div>
-                <div style={{ fontSize: '18px', color: C.primary, fontWeight: '900' }}>💰 {selectedPerson.total_revenue.toLocaleString()} GNF</div>
+                <div style={{ fontSize: '18px', color: C.primary, fontWeight: '900' }}>💰 {safeLocale(selectedPerson.total_revenue)} GNF</div>
               </div>
             )}
             {selectedPerson.completed_jobs !== undefined && (
@@ -831,7 +832,7 @@ const CEODashboard = ({ currentUser, darkMode, lang, onBack, onNavigate, embedde
                       <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>👤 {item.client_name}</span>
                     )}
                     {item.created_at && (
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>📅 {new Date(item.created_at).toLocaleDateString('fr-FR')}</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>📅 {safeDate(item.created_at)}</span>
                     )}
                   </div>
                   <div style={{
@@ -1135,7 +1136,7 @@ const CEODashboard = ({ currentUser, darkMode, lang, onBack, onNavigate, embedde
               {t.totalRevenue}
             </div>
             <div style={{ fontSize: '32px', color: C.primary, fontWeight: '900', lineHeight: '1' }}>
-              {stats.totalRevenue.toLocaleString()} <span style={{ fontSize: '20px' }}>GNF</span>
+              {safeLocale(stats.totalRevenue)} <span style={{ fontSize: '20px' }}>GNF</span>
             </div>
           </div>
         </div>

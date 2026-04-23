@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { safeLocale, safeDate } from '../utils/safeFormat';
 
 interface Invoice {
   id: string;
@@ -155,7 +156,7 @@ export default function UnpaidInvoicesManager({ darkMode = false }: UnpaidInvoic
         }}>
           <div style={{ fontSize: '14px', color: colors.danger, marginBottom: '8px', fontWeight: '600' }}>MONTANT TOTAL IMPAYÉ</div>
           <div style={{ fontSize: '32px', fontWeight: 'bold', color: colors.danger }}>
-            {totalUnpaidAmount.toLocaleString()} GNF
+            {safeLocale(totalUnpaidAmount)} GNF
           </div>
           <div style={{ fontSize: '13px', color: colors.textSecondary, marginTop: '6px' }}>
             {unpaidInvoices.length} facture{unpaidInvoices.length > 1 ? 's' : ''} concernée{unpaidInvoices.length > 1 ? 's' : ''}
@@ -271,7 +272,7 @@ export default function UnpaidInvoicesManager({ darkMode = false }: UnpaidInvoic
 
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px' }}>
-                      Échéance: <span style={{ fontWeight: '600' }}>{new Date(invoice.due_date).toLocaleDateString('fr-FR')}</span>
+                      Échéance: <span style={{ fontWeight: '600' }}>{safeDate(invoice.due_date)}</span>
                     </div>
                     {isOverdue && (
                       <div style={{
@@ -301,23 +302,23 @@ export default function UnpaidInvoicesManager({ darkMode = false }: UnpaidInvoic
                   <div>
                     <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '6px', fontWeight: '600' }}>MONTANT TOTAL</div>
                     <div style={{ fontSize: '18px', fontWeight: 'bold', color: colors.text }}>
-                      {Number(invoice.amount).toLocaleString()} GNF
+                      {safeLocale(Number(invoice.amount))} GNF
                     </div>
                   </div>
                   <div>
                     <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '6px', fontWeight: '600' }}>PAYÉ</div>
                     <div style={{ fontSize: '18px', fontWeight: 'bold', color: colors.success }}>
-                      {paidAmount.toLocaleString()} GNF
+                      {safeLocale(paidAmount)} GNF
                     </div>
                   </div>
                   <div>
                     <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '6px', fontWeight: '600' }}>RESTE À PAYER</div>
                     <div style={{ fontSize: '18px', fontWeight: 'bold', color: colors.danger }}>
-                      {unpaidAmount.toLocaleString()} GNF
+                      {safeLocale(unpaidAmount)} GNF
                     </div>
                     {isOverdue && lateFee > 0 && (
                       <div style={{ fontSize: '11px', color: colors.danger, marginTop: '4px', fontWeight: '600' }}>
-                        + Penalite retard: {lateFee.toLocaleString()} GNF ({penalty.penaltyPercent}%){penalty.weeksLate > 0 ? ` (2% + ${penalty.weeksLate}x5%)` : ' (2%)'}
+                        + Penalite retard: {safeLocale(lateFee)} GNF ({penalty.penaltyPercent}%){penalty.weeksLate > 0 ? ` (2% + ${penalty.weeksLate}x5%)` : ' (2%)'}
                       </div>
                     )}
                   </div>
@@ -344,7 +345,7 @@ export default function UnpaidInvoicesManager({ darkMode = false }: UnpaidInvoic
                           </span>
                         </div>
                         <div style={{ fontSize: '16px', fontWeight: 'bold', color: colors.danger }}>
-                          {Number(invoice.tranche_signature_amount).toLocaleString()} GNF
+                          {safeLocale(Number(invoice.tranche_signature_amount))} GNF
                         </div>
                       </div>
                     )}
@@ -364,7 +365,7 @@ export default function UnpaidInvoicesManager({ darkMode = false }: UnpaidInvoic
                           </span>
                         </div>
                         <div style={{ fontSize: '16px', fontWeight: 'bold', color: colors.danger }}>
-                          {Number(invoice.tranche_moitier_amount).toLocaleString()} GNF
+                          {safeLocale(Number(invoice.tranche_moitier_amount))} GNF
                         </div>
                       </div>
                     )}
@@ -384,7 +385,7 @@ export default function UnpaidInvoicesManager({ darkMode = false }: UnpaidInvoic
                           </span>
                         </div>
                         <div style={{ fontSize: '16px', fontWeight: 'bold', color: colors.danger }}>
-                          {Number(invoice.tranche_fin_amount).toLocaleString()} GNF
+                          {safeLocale(Number(invoice.tranche_fin_amount))} GNF
                         </div>
                       </div>
                     )}
@@ -480,10 +481,10 @@ export default function UnpaidInvoicesManager({ darkMode = false }: UnpaidInvoic
                   </div>
                 )}
                 <div style={{ marginBottom: '12px' }}>
-                  <span style={{ fontWeight: '600' }}>Échéance:</span> {new Date(selectedInvoice.due_date).toLocaleDateString('fr-FR')}
+                  <span style={{ fontWeight: '600' }}>Échéance:</span> {safeDate(selectedInvoice.due_date)}
                 </div>
                 <div style={{ marginBottom: '12px' }}>
-                  <span style={{ fontWeight: '600' }}>Montant total:</span> {Number(selectedInvoice.amount).toLocaleString()} GNF
+                  <span style={{ fontWeight: '600' }}>Montant total:</span> {safeLocale(Number(selectedInvoice.amount))} GNF
                 </div>
               </div>
 
@@ -514,7 +515,7 @@ export default function UnpaidInvoicesManager({ darkMode = false }: UnpaidInvoic
                           {tranche.label} ({tranche.percent}%)
                         </div>
                         <div style={{ fontSize: '16px', fontWeight: 'bold', color: tranche.paid ? colors.success : colors.danger }}>
-                          {Number(tranche.amount).toLocaleString()} GNF
+                          {safeLocale(Number(tranche.amount))} GNF
                         </div>
                       </div>
                       <button

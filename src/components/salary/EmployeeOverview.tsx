@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
+import { safeFixed } from '../../utils/safeFormat';
 
 interface Props {
   darkMode: boolean;
@@ -260,7 +261,7 @@ export default function EmployeeOverview({ darkMode, onBack }: Props) {
                     >
                       <td style={{ padding: '12px 14px', fontWeight: 600, color: colors.text }}>{r.name}</td>
                       <td style={{ padding: '12px 14px', color: colors.textSub }}>{r.echelon}</td>
-                      <td style={{ padding: '12px 14px', textAlign: 'right', color: colors.text }}>{r.hoursWorked > 0 ? `${r.hoursWorked.toFixed(1)} h` : '—'}</td>
+                      <td style={{ padding: '12px 14px', textAlign: 'right', color: colors.text }}>{r.hoursWorked > 0 ? `${safeFixed(r.hoursWorked, 1)} h` : '—'}</td>
                       <td style={{ padding: '12px 14px', textAlign: 'right', color: colors.textSub, fontSize: 12 }}>{r.hourlyRate > 0 ? fmtGNF(r.hourlyRate) : '—'}</td>
                       <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 600, color: colors.text }}>{r.totalSalary > 0 ? fmtGNF(r.totalSalary) : '—'}</td>
                       <td style={{ padding: '12px 14px', textAlign: 'right', color: colors.text }}>
@@ -287,7 +288,7 @@ export default function EmployeeOverview({ darkMode, onBack }: Props) {
                   <tfoot>
                     <tr style={{ background: colors.headerBg, borderTop: `2px solid ${colors.border}` }}>
                       <td colSpan={2} style={{ padding: '12px 14px', fontWeight: 700, color: colors.text }}>TOTAL</td>
-                      <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: colors.text }}>{techRows.reduce((s, r) => s + r.hoursWorked, 0).toFixed(1)} h</td>
+                      <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: colors.text }}>{safeFixed(techRows.reduce((s, r) => s + r.hoursWorked, 0), 1)} h</td>
                       <td></td>
                       <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: colors.text }}>{fmtGNF(summaryStats.totalTechSalary)}</td>
                       <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: colors.success }}>
@@ -331,7 +332,7 @@ export default function EmployeeOverview({ darkMode, onBack }: Props) {
                     >
                       <td style={{ padding: '12px 14px', fontWeight: 600, color: colors.text }}>{r.name}</td>
                       <td style={{ padding: '12px 14px', color: colors.textSub }}>{r.position}</td>
-                      <td style={{ padding: '12px 14px', textAlign: 'right', color: colors.text }}>{r.hoursWorked > 0 ? `${r.hoursWorked.toFixed(1)} h` : '—'}</td>
+                      <td style={{ padding: '12px 14px', textAlign: 'right', color: colors.text }}>{r.hoursWorked > 0 ? `${safeFixed(r.hoursWorked, 1)} h` : '—'}</td>
                       <td style={{ padding: '12px 14px', textAlign: 'right', color: colors.textSub, fontSize: 12 }}>{r.hourlyRate > 0 ? fmtGNF(r.hourlyRate) : '—'}</td>
                       <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 600, color: colors.text }}>{r.totalSalary > 0 ? fmtGNF(r.totalSalary) : '—'}</td>
                     </tr>
@@ -341,7 +342,7 @@ export default function EmployeeOverview({ darkMode, onBack }: Props) {
                   <tfoot>
                     <tr style={{ background: colors.headerBg, borderTop: `2px solid ${colors.border}` }}>
                       <td colSpan={2} style={{ padding: '12px 14px', fontWeight: 700, color: colors.text }}>TOTAL</td>
-                      <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: colors.text }}>{officeRows.reduce((s, r) => s + r.hoursWorked, 0).toFixed(1)} h</td>
+                      <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: colors.text }}>{safeFixed(officeRows.reduce((s, r) => s + r.hoursWorked, 0), 1)} h</td>
                       <td></td>
                       <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: colors.text }}>{fmtGNF(summaryStats.totalOfficeSalary)}</td>
                     </tr>
@@ -360,8 +361,8 @@ export default function EmployeeOverview({ darkMode, onBack }: Props) {
               {[
                 { label: 'Masse salariale totale', value: fmtGNF(summaryStats.totalSalary), sub: `Tech: ${fmtGNF(summaryStats.totalTechSalary)} | Bureau: ${fmtGNF(summaryStats.totalOfficeSalary)}`, color: colors.text },
                 { label: 'CA Généré (Techniciens)', value: fmtGNF(summaryStats.totalRevenue), sub: `${summaryStats.totalInterventions} intervention(s) terminée(s)`, color: colors.primary },
-                { label: 'Profit brut', value: `${summaryStats.totalProfit >= 0 ? '+' : ''}${fmtGNF(summaryStats.totalProfit)}`, sub: `Marge: ${summaryStats.margin.toFixed(1)}%`, color: profitColor(summaryStats.totalProfit) },
-                { label: 'Heures travaillées', value: `${summaryStats.totalHours.toFixed(1)} h`, sub: `${techUsers.length} tech + ${officeUsers.length} bureau`, color: colors.warning },
+                { label: 'Profit brut', value: `${summaryStats.totalProfit >= 0 ? '+' : ''}${fmtGNF(summaryStats.totalProfit)}`, sub: `Marge: ${safeFixed(summaryStats.margin, 1)}%`, color: profitColor(summaryStats.totalProfit) },
+                { label: 'Heures travaillées', value: `${safeFixed(summaryStats.totalHours, 1)} h`, sub: `${techUsers.length} tech + ${officeUsers.length} bureau`, color: colors.warning },
               ].map(card => (
                 <div key={card.label} style={{ background: colors.card, borderRadius: 14, border: `1px solid ${colors.border}`, padding: '18px 20px' }}>
                   <div style={{ color: colors.textSub, fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>{card.label}</div>

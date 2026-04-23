@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { safeLocale, safeDate } from '../utils/safeFormat';
 
 interface StockItem {
   id: string;
@@ -407,7 +408,7 @@ const StockManager: React.FC<StockManagerProps> = ({ userRole, userId, darkMode 
         <div style={{ background: colors.surface, padding: '20px', borderRadius: '16px', border: `2px solid ${colors.border}` }}>
           <div style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '8px' }}>Valeur Totale</div>
           <div style={{ fontSize: '24px', fontWeight: 'bold', color: colors.text }}>
-            {totalValue.toLocaleString()} GNF
+            {safeLocale(totalValue)} GNF
           </div>
         </div>
       </div>
@@ -909,7 +910,7 @@ const StockManager: React.FC<StockManagerProps> = ({ userRole, userId, darkMode 
                           {item.min_quantity} {item.unit}
                         </td>
                         <td style={{ padding: '16px', fontSize: '14px', color: colors.text, textAlign: 'right' }}>
-                          {item.unit_price.toLocaleString()} GNF
+                          {safeLocale(item.unit_price)} GNF
                         </td>
                         <td style={{ padding: '16px', fontSize: '14px', color: colors.textSecondary }}>
                           {item.supplier || '-'}
@@ -997,7 +998,7 @@ const StockManager: React.FC<StockManagerProps> = ({ userRole, userId, darkMode 
                   movements.map(movement => (
                     <tr key={movement.id} style={{ borderTop: `1px solid ${colors.border}` }}>
                       <td style={{ padding: '16px', fontSize: '14px', color: colors.text }}>
-                        {new Date(movement.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        {safeDate(movement.created_at)}
                       </td>
                       <td style={{ padding: '16px', fontSize: '14px', fontWeight: '600', color: colors.text }}>
                         {movement.stock_item_name}

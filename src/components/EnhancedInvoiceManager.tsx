@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { useRealtimeInvoices, useRealtimeProjects } from '../hooks/useRealtimeSync';
+import { safeNumber, safeLocale } from '../utils/safeFormat';
 
 interface Invoice {
   id: string;
@@ -246,7 +247,7 @@ const EnhancedInvoiceManager: React.FC<EnhancedInvoiceManagerProps> = ({ userRol
           setFormData(prev => ({
             ...prev,
             project_id: projectId,
-            amount: quote.estimated_price.toString(),
+            amount: String(quote.estimated_price ?? ''),
             client_name: quote.name || prev.client_name,
           }));
         }
@@ -487,8 +488,8 @@ const EnhancedInvoiceManager: React.FC<EnhancedInvoiceManagerProps> = ({ userRol
     setFormData({
       client_id: invoice.client_id || '',
       client_name: invoice.client_name || '',
-      amount: invoice.amount.toString(),
-      due_date: invoice.due_date.split('T')[0],
+      amount: String(invoice.amount ?? ''),
+      due_date: (invoice.due_date ?? '').split('T')[0],
       project_id: invoice.project_id || '',
       notes: invoice.notes || '',
       tranche_signature_percent: invoice.tranche_signature_percent?.toString() || '65',
@@ -581,26 +582,26 @@ const EnhancedInvoiceManager: React.FC<EnhancedInvoiceManagerProps> = ({ userRol
         <div style={{ background: colors.surface, padding: '20px', borderRadius: '16px', border: `2px solid ${colors.border}` }}>
           <div style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '8px' }}>Total Facturé</div>
           <div style={{ fontSize: '24px', fontWeight: 'bold', color: colors.text }}>
-            {totalAmount.toLocaleString()} GNF
+            {safeLocale(totalAmount)} GNF
           </div>
         </div>
         <div style={{ background: colors.surface, padding: '20px', borderRadius: '16px', border: `2px solid ${colors.border}` }}>
           <div style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '8px' }}>Payé</div>
           <div style={{ fontSize: '24px', fontWeight: 'bold', color: colors.success }}>
-            {paidAmount.toLocaleString()} GNF
+            {safeLocale(paidAmount)} GNF
           </div>
         </div>
         <div style={{ background: colors.surface, padding: '20px', borderRadius: '16px', border: `2px solid ${colors.border}` }}>
           <div style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '8px' }}>En Attente</div>
           <div style={{ fontSize: '24px', fontWeight: 'bold', color: colors.warning }}>
-            {pendingAmount.toLocaleString()} GNF
+            {safeLocale(pendingAmount)} GNF
           </div>
         </div>
         {lateInvoicesCount > 0 && (
           <div style={{ background: `linear-gradient(135deg, ${colors.danger}10, ${colors.danger}05)`, padding: '20px', borderRadius: '16px', border: `2px solid ${colors.danger}40` }}>
             <div style={{ fontSize: '14px', color: colors.danger, marginBottom: '8px', fontWeight: '600' }}>Penalites retard ({lateInvoicesCount} facture{lateInvoicesCount > 1 ? 's' : ''})</div>
             <div style={{ fontSize: '24px', fontWeight: 'bold', color: colors.danger }}>
-              +{totalLateFees.toLocaleString()} GNF
+              +{safeLocale(totalLateFees)} GNF
             </div>
           </div>
         )}
@@ -1028,7 +1029,7 @@ const EnhancedInvoiceManager: React.FC<EnhancedInvoiceManagerProps> = ({ userRol
                       <div>{invoice.client_name}</div>
                       {invoice.client?.email && (
                         <div style={{ fontSize: '12px', color: colors.textSecondary }}>
-                          {invoice.client.email}
+                          {invoice.client?.email ?? ''}
                         </div>
                       )}
                     </td>
@@ -1041,11 +1042,11 @@ const EnhancedInvoiceManager: React.FC<EnhancedInvoiceManagerProps> = ({ userRol
                         return (
                           <div>
                             <div style={{ fontSize: '14px', fontWeight: '600', color: colors.text }}>
-                              {Number(invoice.amount).toLocaleString()} GNF
+                              {safeLocale(invoice.amount)} GNF
                             </div>
                             {fee.isLate && (
                               <div style={{ fontSize: '11px', fontWeight: '700', color: colors.danger, marginTop: '2px' }}>
-                                +{fee.penaltyAmount.toLocaleString()} GNF ({fee.penaltyPercent}%)
+                                +{safeLocale(fee.penaltyAmount)} GNF ({fee.penaltyPercent}%)
                               </div>
                             )}
                           </div>
@@ -1295,12 +1296,12 @@ const EnhancedInvoiceManager: React.FC<EnhancedInvoiceManagerProps> = ({ userRol
                 </div>
                 {selectedInvoice.client?.email && (
                   <div style={{ fontSize: '14px', color: colors.textSecondary, marginTop: '4px' }}>
-                    Email: {selectedInvoice.client.email}
+                    Email: {selectedInvoice.client?.email ?? ''}
                   </div>
                 )}
                 {selectedInvoice.client?.phone && (
                   <div style={{ fontSize: '14px', color: colors.textSecondary, marginTop: '2px' }}>
-                    Tél: {selectedInvoice.client.phone}
+                    Tél: {selectedInvoice.client?.phone ?? ''}
                   </div>
                 )}
               </div>
@@ -1339,10 +1340,10 @@ const EnhancedInvoiceManager: React.FC<EnhancedInvoiceManagerProps> = ({ userRol
                     Devis source
                   </div>
                   <div style={{ fontSize: '16px', fontWeight: '600', color: colors.success }}>
-                    #{selectedInvoice.quote.tracking_number}
+                    #{selectedInvoice.quote?.tracking_number ?? ''}
                   </div>
                   <div style={{ fontSize: '14px', color: colors.textSecondary, marginTop: '4px' }}>
-                    Service: {selectedInvoice.quote.service_type}
+                    Service: {selectedInvoice.quote?.service_type ?? ''}
                   </div>
                   <div style={{ fontSize: '14px', color: colors.textSecondary, marginTop: '2px' }}>
                     Statut: {selectedInvoice.quote.status === 'accepted' ? 'Accepté' : selectedInvoice.quote.status}
@@ -1381,28 +1382,28 @@ const EnhancedInvoiceManager: React.FC<EnhancedInvoiceManagerProps> = ({ userRol
                   <div>
                     <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Montant total</div>
                     <div style={{ fontSize: '18px', fontWeight: 'bold', color: colors.text }}>
-                      {Number(selectedInvoice.amount).toLocaleString()} GNF
+                      {safeLocale(selectedInvoice.amount)} GNF
                     </div>
                   </div>
                   <div>
                     <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Déjà payé</div>
                     <div style={{ fontSize: '18px', fontWeight: 'bold', color: colors.success }}>
-                      {(
-                        (selectedInvoice.tranche_signature_paid ? Number(selectedInvoice.tranche_signature_amount) : 0) +
-                        (selectedInvoice.tranche_moitier_paid ? Number(selectedInvoice.tranche_moitier_amount) : 0) +
-                        (selectedInvoice.tranche_fin_paid ? Number(selectedInvoice.tranche_fin_amount) : 0)
-                      ).toLocaleString()} GNF
+                      {safeLocale(
+                        (selectedInvoice.tranche_signature_paid ? safeNumber(selectedInvoice.tranche_signature_amount) : 0) +
+                        (selectedInvoice.tranche_moitier_paid ? safeNumber(selectedInvoice.tranche_moitier_amount) : 0) +
+                        (selectedInvoice.tranche_fin_paid ? safeNumber(selectedInvoice.tranche_fin_amount) : 0)
+                      )} GNF
                     </div>
                   </div>
                   <div>
                     <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Reste à payer</div>
                     <div style={{ fontSize: '18px', fontWeight: 'bold', color: colors.danger }}>
-                      {(
-                        Number(selectedInvoice.amount) -
-                        (selectedInvoice.tranche_signature_paid ? Number(selectedInvoice.tranche_signature_amount) : 0) -
-                        (selectedInvoice.tranche_moitier_paid ? Number(selectedInvoice.tranche_moitier_amount) : 0) -
-                        (selectedInvoice.tranche_fin_paid ? Number(selectedInvoice.tranche_fin_amount) : 0)
-                      ).toLocaleString()} GNF
+                      {safeLocale(
+                        safeNumber(selectedInvoice.amount) -
+                        (selectedInvoice.tranche_signature_paid ? safeNumber(selectedInvoice.tranche_signature_amount) : 0) -
+                        (selectedInvoice.tranche_moitier_paid ? safeNumber(selectedInvoice.tranche_moitier_amount) : 0) -
+                        (selectedInvoice.tranche_fin_paid ? safeNumber(selectedInvoice.tranche_fin_amount) : 0)
+                      )} GNF
                     </div>
                   </div>
                 </div>
@@ -1417,19 +1418,19 @@ const EnhancedInvoiceManager: React.FC<EnhancedInvoiceManagerProps> = ({ userRol
                     height: '100%',
                     background: `linear-gradient(90deg, ${colors.success}, ${colors.success}dd)`,
                     width: `${((
-                      (selectedInvoice.tranche_signature_paid ? Number(selectedInvoice.tranche_signature_amount) : 0) +
-                      (selectedInvoice.tranche_moitier_paid ? Number(selectedInvoice.tranche_moitier_amount) : 0) +
-                      (selectedInvoice.tranche_fin_paid ? Number(selectedInvoice.tranche_fin_amount) : 0)
-                    ) / Number(selectedInvoice.amount)) * 100}%`,
+                      (selectedInvoice.tranche_signature_paid ? safeNumber(selectedInvoice.tranche_signature_amount) : 0) +
+                      (selectedInvoice.tranche_moitier_paid ? safeNumber(selectedInvoice.tranche_moitier_amount) : 0) +
+                      (selectedInvoice.tranche_fin_paid ? safeNumber(selectedInvoice.tranche_fin_amount) : 0)
+                    ) / (safeNumber(selectedInvoice.amount) || 1)) * 100}%`,
                     transition: 'width 0.5s ease',
                   }} />
                 </div>
                 <div style={{ fontSize: '12px', color: colors.textSecondary, marginTop: '6px', textAlign: 'center' }}>
                   {Math.round(((
-                    (selectedInvoice.tranche_signature_paid ? Number(selectedInvoice.tranche_signature_amount) : 0) +
-                    (selectedInvoice.tranche_moitier_paid ? Number(selectedInvoice.tranche_moitier_amount) : 0) +
-                    (selectedInvoice.tranche_fin_paid ? Number(selectedInvoice.tranche_fin_amount) : 0)
-                  ) / Number(selectedInvoice.amount)) * 100)}% payé
+                    (selectedInvoice.tranche_signature_paid ? safeNumber(selectedInvoice.tranche_signature_amount) : 0) +
+                    (selectedInvoice.tranche_moitier_paid ? safeNumber(selectedInvoice.tranche_moitier_amount) : 0) +
+                    (selectedInvoice.tranche_fin_paid ? safeNumber(selectedInvoice.tranche_fin_amount) : 0)
+                  ) / (safeNumber(selectedInvoice.amount) || 1)) * 100)}% payé
                 </div>
               </div>
 
@@ -1458,24 +1459,24 @@ const EnhancedInvoiceManager: React.FC<EnhancedInvoiceManagerProps> = ({ userRol
                       <div style={{ background: colors.background, padding: '12px', borderRadius: '10px' }}>
                         <div style={{ fontSize: '11px', color: colors.textSecondary, marginBottom: '4px' }}>Total penalites ({fee.penaltyPercent}%)</div>
                         <div style={{ fontSize: '16px', fontWeight: '700', color: colors.danger }}>
-                          +{fee.penaltyAmount.toLocaleString()} GNF
+                          +{safeLocale(fee.penaltyAmount)} GNF
                         </div>
                       </div>
                     </div>
                     <div style={{ display: 'grid', gap: '6px', marginBottom: '12px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: colors.background, borderRadius: '8px', fontSize: '13px' }}>
                         <span style={{ color: colors.textSecondary }}>Penalite initiale ({INITIAL_LATE_FEE_PERCENT}%)</span>
-                        <span style={{ fontWeight: '700', color: colors.danger }}>+{fee.initialPenaltyAmount.toLocaleString()} GNF</span>
+                        <span style={{ fontWeight: '700', color: colors.danger }}>+{safeLocale(fee.initialPenaltyAmount)} GNF</span>
                       </div>
                       {fee.weeksLate > 0 && (
                         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: colors.background, borderRadius: '8px', fontSize: '13px' }}>
                           <span style={{ color: colors.textSecondary }}>Penalite hebdomadaire ({fee.weeksLate} x {WEEKLY_LATE_FEE_PERCENT}%)</span>
-                          <span style={{ fontWeight: '700', color: colors.danger }}>+{fee.weeklyPenaltyAmount.toLocaleString()} GNF</span>
+                          <span style={{ fontWeight: '700', color: colors.danger }}>+{safeLocale(fee.weeklyPenaltyAmount)} GNF</span>
                         </div>
                       )}
                       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', background: `${colors.danger}15`, borderRadius: '8px', fontSize: '14px', fontWeight: '700' }}>
                         <span style={{ color: colors.danger }}>NOUVEAU TOTAL</span>
-                        <span style={{ color: colors.danger }}>{fee.totalWithPenalty.toLocaleString()} GNF</span>
+                        <span style={{ color: colors.danger }}>{safeLocale(fee.totalWithPenalty)} GNF</span>
                       </div>
                     </div>
                     <div style={{
@@ -1488,8 +1489,8 @@ const EnhancedInvoiceManager: React.FC<EnhancedInvoiceManagerProps> = ({ userRol
                       lineHeight: '1.5',
                     }}>
                       Echeance depassee depuis le {new Date(selectedInvoice.due_date).toLocaleDateString('fr-FR')}.
-                      {' '}{INITIAL_LATE_FEE_PERCENT}% applique le 1er jour (+{fee.initialPenaltyAmount.toLocaleString()} GNF)
-                      {fee.weeksLate > 0 && `, puis ${fee.weeksLate} semaine${fee.weeksLate > 1 ? 's' : ''} x ${WEEKLY_LATE_FEE_PERCENT}% (+${fee.weeklyPenaltyAmount.toLocaleString()} GNF)`}.
+                      {' '}{INITIAL_LATE_FEE_PERCENT}% applique le 1er jour (+{safeLocale(fee.initialPenaltyAmount)} GNF)
+                      {fee.weeksLate > 0 && `, puis ${fee.weeksLate} semaine${fee.weeksLate > 1 ? 's' : ''} x ${WEEKLY_LATE_FEE_PERCENT}% (+${safeLocale(fee.weeklyPenaltyAmount)} GNF)`}.
                     </div>
                   </div>
                 ) : null;
@@ -1499,13 +1500,13 @@ const EnhancedInvoiceManager: React.FC<EnhancedInvoiceManagerProps> = ({ userRol
                 <div style={{ background: colors.surface, padding: '16px', borderRadius: '12px' }}>
                   <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Montant total</div>
                   <div style={{ fontSize: '20px', fontWeight: 'bold', color: colors.primary }}>
-                    {Number(selectedInvoice.amount).toLocaleString()} GNF
+                    {safeLocale(selectedInvoice.amount)} GNF
                   </div>
                   {(() => {
                     const fee = calculateLateFee(selectedInvoice);
                     return fee.isLate ? (
                       <div style={{ fontSize: '13px', fontWeight: '700', color: colors.danger, marginTop: '4px' }}>
-                        Avec penalite: {fee.totalWithPenalty.toLocaleString()} GNF
+                        Avec penalite: {safeLocale(fee.totalWithPenalty)} GNF
                       </div>
                     ) : null;
                   })()}
@@ -1588,7 +1589,7 @@ const EnhancedInvoiceManager: React.FC<EnhancedInvoiceManagerProps> = ({ userRol
                           1. Signature ({selectedInvoice.tranche_signature_percent}%)
                         </div>
                         <div style={{ fontSize: '18px', fontWeight: 'bold', color: selectedInvoice.tranche_signature_paid ? colors.success : colors.danger, marginTop: '4px' }}>
-                          {Number(selectedInvoice.tranche_signature_amount).toLocaleString()} GNF
+                          {safeLocale(selectedInvoice.tranche_signature_amount)} GNF
                         </div>
                       </div>
                       {userRole === 'admin' && (
@@ -1647,7 +1648,7 @@ const EnhancedInvoiceManager: React.FC<EnhancedInvoiceManagerProps> = ({ userRol
                           2. Mi-parcours ({selectedInvoice.tranche_moitier_percent}%)
                         </div>
                         <div style={{ fontSize: '18px', fontWeight: 'bold', color: selectedInvoice.tranche_moitier_paid ? colors.success : colors.danger, marginTop: '4px' }}>
-                          {Number(selectedInvoice.tranche_moitier_amount).toLocaleString()} GNF
+                          {safeLocale(selectedInvoice.tranche_moitier_amount)} GNF
                         </div>
                       </div>
                       {userRole === 'admin' && (
@@ -1706,7 +1707,7 @@ const EnhancedInvoiceManager: React.FC<EnhancedInvoiceManagerProps> = ({ userRol
                           3. Fin de projet ({selectedInvoice.tranche_fin_percent}%)
                         </div>
                         <div style={{ fontSize: '18px', fontWeight: 'bold', color: selectedInvoice.tranche_fin_paid ? colors.success : colors.danger, marginTop: '4px' }}>
-                          {Number(selectedInvoice.tranche_fin_amount).toLocaleString()} GNF
+                          {safeLocale(selectedInvoice.tranche_fin_amount)} GNF
                         </div>
                       </div>
                       {userRole === 'admin' && (
@@ -1746,11 +1747,11 @@ const EnhancedInvoiceManager: React.FC<EnhancedInvoiceManagerProps> = ({ userRol
                 }}>
                   <span style={{ fontSize: '14px', fontWeight: '600', color: colors.text }}>Total payé:</span>
                   <span style={{ fontSize: '18px', fontWeight: 'bold', color: colors.success }}>
-                    {(
-                      (selectedInvoice.tranche_signature_paid ? Number(selectedInvoice.tranche_signature_amount) : 0) +
-                      (selectedInvoice.tranche_moitier_paid ? Number(selectedInvoice.tranche_moitier_amount) : 0) +
-                      (selectedInvoice.tranche_fin_paid ? Number(selectedInvoice.tranche_fin_amount) : 0)
-                    ).toLocaleString()} GNF
+                    {safeLocale(
+                      (selectedInvoice.tranche_signature_paid ? safeNumber(selectedInvoice.tranche_signature_amount) : 0) +
+                      (selectedInvoice.tranche_moitier_paid ? safeNumber(selectedInvoice.tranche_moitier_amount) : 0) +
+                      (selectedInvoice.tranche_fin_paid ? safeNumber(selectedInvoice.tranche_fin_amount) : 0)
+                    )} GNF
                   </span>
                 </div>
               </div>

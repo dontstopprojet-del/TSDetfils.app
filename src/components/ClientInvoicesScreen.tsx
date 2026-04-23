@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { safeLocale, safeDate } from '../utils/safeFormat';
 
 interface ClientInvoicesScreenProps {
   currentUser: any;
@@ -134,7 +135,7 @@ export default function ClientInvoicesScreen({ currentUser, lang, colors: C, onB
                       </h4>
                     </div>
                     <p style={{ margin: 0, fontSize: '12px', color: C.textSecondary }}>
-                      {new Date(invoice.created_at).toLocaleDateString(lang === 'fr' ? 'fr-FR' : lang === 'en' ? 'en-US' : 'ar-SA')}
+                      {safeDate(invoice.created_at, lang)}
                     </p>
                   </div>
                   <span style={{ background: `${statusColor}20`, color: statusColor, padding: '6px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '600' }}>
@@ -146,7 +147,7 @@ export default function ClientInvoicesScreen({ currentUser, lang, colors: C, onB
                     {lang === 'fr' ? 'Montant' : 'Amount'}
                   </div>
                   <div style={{ fontSize: '24px', fontWeight: '800', color: C.primary }}>
-                    {invoice.amount?.toLocaleString()} <span style={{ fontSize: '14px', fontWeight: '600' }}>GNF</span>
+                    {safeLocale(invoice.amount)} <span style={{ fontSize: '14px', fontWeight: '600' }}>GNF</span>
                   </div>
                 </div>
                 {invoice.project_title && (
@@ -156,7 +157,7 @@ export default function ClientInvoicesScreen({ currentUser, lang, colors: C, onB
                 )}
                 {invoice.due_date && (
                   <div style={{ fontSize: '12px', color: C.textSecondary }}>
-                    📅 {lang === 'fr' ? 'Échéance' : 'Due'}: {new Date(invoice.due_date).toLocaleDateString(lang === 'fr' ? 'fr-FR' : lang === 'en' ? 'en-US' : 'ar-SA')}
+                    📅 {lang === 'fr' ? 'Échéance' : 'Due'}: {safeDate(invoice.due_date, lang)}
                   </div>
                 )}
                 <div style={{ marginTop: '12px', textAlign: 'right' }}>
@@ -177,7 +178,7 @@ export default function ClientInvoicesScreen({ currentUser, lang, colors: C, onB
                 💰 {lang === 'fr' ? 'Facture' : 'Invoice'} N° {selectedInvoice.invoice_number}
               </h3>
               <p style={{ margin: '5px 0 0', fontSize: '13px', color: 'rgba(255,255,255,0.8)' }}>
-                {new Date(selectedInvoice.created_at).toLocaleDateString(lang === 'fr' ? 'fr-FR' : lang === 'en' ? 'en-US' : 'ar-SA')}
+                {safeDate(selectedInvoice.created_at, lang)}
               </p>
             </div>
             <button onClick={() => setShowInvoiceDetail(false)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', width: '32px', height: '32px', borderRadius: '50%', color: '#FFF', fontSize: '16px', cursor: 'pointer' }}>×</button>
@@ -188,7 +189,7 @@ export default function ClientInvoicesScreen({ currentUser, lang, colors: C, onB
                 {lang === 'fr' ? 'Montant Total' : 'Total Amount'}
               </div>
               <div style={{ fontSize: '36px', fontWeight: '800', color: C.primary }}>
-                {selectedInvoice.amount?.toLocaleString()} <span style={{ fontSize: '18px' }}>GNF</span>
+                {safeLocale(selectedInvoice.amount)} <span style={{ fontSize: '18px' }}>GNF</span>
               </div>
             </div>
             {selectedInvoice.project_title && (
@@ -207,7 +208,7 @@ export default function ClientInvoicesScreen({ currentUser, lang, colors: C, onB
                   {lang === 'fr' ? 'Date d\'échéance' : 'Due Date'}
                 </div>
                 <div style={{ fontSize: '15px', color: C.text }}>
-                  📅 {new Date(selectedInvoice.due_date).toLocaleDateString(lang === 'fr' ? 'fr-FR' : lang === 'en' ? 'en-US' : 'ar-SA')}
+                  📅 {safeDate(selectedInvoice.due_date, lang)}
                 </div>
               </div>
             )}
@@ -223,7 +224,7 @@ export default function ClientInvoicesScreen({ currentUser, lang, colors: C, onB
                         1️⃣ {lang === 'fr' ? 'À la signature' : lang === 'en' ? 'At signature' : 'عند التوقيع'} ({selectedInvoice.tranche_signature_percent}%)
                       </div>
                       <div style={{ fontSize: '18px', fontWeight: '700', color: C.primary }}>
-                        {selectedInvoice.tranche_signature_amount?.toLocaleString()} GNF
+                        {safeLocale(selectedInvoice.tranche_signature_amount)} GNF
                       </div>
                     </div>
                     {selectedInvoice.tranche_signature_paid ? (
@@ -259,7 +260,7 @@ export default function ClientInvoicesScreen({ currentUser, lang, colors: C, onB
                         2️⃣ {lang === 'fr' ? 'À mi-parcours' : lang === 'en' ? 'At midpoint' : 'في منتصف الطريق'} ({selectedInvoice.tranche_moitier_percent}%)
                       </div>
                       <div style={{ fontSize: '18px', fontWeight: '700', color: C.primary }}>
-                        {selectedInvoice.tranche_moitier_amount?.toLocaleString()} GNF
+                        {safeLocale(selectedInvoice.tranche_moitier_amount)} GNF
                       </div>
                     </div>
                     {selectedInvoice.tranche_moitier_paid ? (
@@ -295,7 +296,7 @@ export default function ClientInvoicesScreen({ currentUser, lang, colors: C, onB
                         3️⃣ {lang === 'fr' ? 'À la fin' : lang === 'en' ? 'At completion' : 'عند الانتهاء'} ({selectedInvoice.tranche_fin_percent}%)
                       </div>
                       <div style={{ fontSize: '18px', fontWeight: '700', color: C.primary }}>
-                        {selectedInvoice.tranche_fin_amount?.toLocaleString()} GNF
+                        {safeLocale(selectedInvoice.tranche_fin_amount)} GNF
                       </div>
                     </div>
                     {selectedInvoice.tranche_fin_paid ? (
