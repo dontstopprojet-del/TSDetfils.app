@@ -46,8 +46,14 @@ function App() {
     localStorage.setItem('appMode', appMode);
   }, [darkMode, language, appMode]);
 
-  if (showSplash) {
-    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+ if (showSplash) {
+  setTimeout(() => setShowSplash(false), 1500);
+  return (
+    <div style={{ padding: 40, fontSize: 32, color: 'red' }}>
+      Chargement...
+    </div>
+  );
+}
   }
 
   if (appMode === 'client') {
